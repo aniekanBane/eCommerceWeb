@@ -34,4 +34,8 @@ public static class DomainModelConstants
     public const int ORDER_TRACKING_NO_LENGTH = 40;
     public const int CARRIER_NAME_MAX_LENGTH = 64;
     #endregion
+
+    #region mediaFile
+    public const long MEDIA_FILE_MAX_SIZE = 1024 * 1024 * 1000;
+    #endregion
 }
