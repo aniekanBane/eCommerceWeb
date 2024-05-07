@@ -2,8 +2,12 @@ namespace eCommerceWeb.Domain.Primitives.Entities;
 
 public abstract class Entity<TId> : IEntity<TId>, IEquatable<Entity<TId>>
 {
+    protected Entity() { }
+
+    protected Entity(TId id) => Id = id;
+
     [Column(Order = 0)]
-    public TId Id { get; protected set; } = default!;
+    public TId Id { get; protected init; } = default!;
 
     public static bool operator ==(Entity<TId> left, Entity<TId> right)
     {
