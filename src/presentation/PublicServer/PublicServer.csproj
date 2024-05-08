@@ -23,14 +23,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\core\Application\Application.csproj" />
-    <ProjectReference Include="..\..\infrastructure\External\External.csproj" />
-    <ProjectReference Include="..\..\infrastructure\Migrator\Migrator.csproj" />
-    <ProjectReference Include="..\..\infrastructure\Persistence\Persistence.csproj" />
+    <ProjectReference Include="..\..\Core\Application\Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\External\External.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Migrator\Migrator.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Persistence\Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="EndpointFilters/" />
+    <Folder Include="Files/" />
   </ItemGroup>
 
 </Project>

@@ -4,11 +4,6 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Core/Orders/" />
-    <Folder Include="Core/Subcribers/" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNameSpace>eCommerceWeb.Application</RootNameSpace>
