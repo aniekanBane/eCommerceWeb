@@ -2,7 +2,7 @@
 
 namespace eCommerceWeb.Domain.Entities.MarketingAggregate;
 
-public sealed class MailingListSubcriber : AuditableEntity<int>
+public sealed class MailingListSubcriber : Entity<int>
 {
     private MailingListSubcriber() { } // EF Core
 

@@ -14,6 +14,8 @@ public abstract class Tag : Entity<int>
     protected Tag(string name) : this()
     {
         Guard.Against.NullOrWhiteSpace(name, nameof(name));
+        Guard.Against.StringTooLong(name, DomainModelConstants.TAG_NAME_MAX_LENGTH, nameof(name));
+        
         Name = name;
     }
 

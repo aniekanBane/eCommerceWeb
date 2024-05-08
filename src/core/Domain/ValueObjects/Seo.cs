@@ -28,7 +28,7 @@ public sealed record class Seo
         if (!string.IsNullOrWhiteSpace(metaDescription))
             Guard.Against.StringTooLong(metaDescription, DomainModelConstants.SEO_DESC_MAX_LENGTH, nameof(metaDescription));
         if (!string.IsNullOrWhiteSpace(metaKeywords))
-            Guard.Against.StringTooLong(metaKeywords, DomainModelConstants.INDEX_STRING_MAX_LENGTH, nameof(metaKeywords));
+            Guard.Against.StringTooLong(metaKeywords, DomainModelConstants.SEO_IMAGE_DESC_MAX_LENGTH, nameof(metaKeywords));
             
         MetaTitle = metaTitle;
         MetaKeywords = metaKeywords;
