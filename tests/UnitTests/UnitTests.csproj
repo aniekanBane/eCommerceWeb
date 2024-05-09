@@ -29,13 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SharedTestHelpers\SharedTestHelper.csproj" />
-    <ProjectReference Include="..\..\src\Core\Application\Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Systems/Entities/Carts/" />
-    <Folder Include="Systems/Entities/Orders/" />
+    <ProjectReference Include="..\SharedTestHelper\SharedTestHelper.csproj" />
   </ItemGroup>
 
 </Project>

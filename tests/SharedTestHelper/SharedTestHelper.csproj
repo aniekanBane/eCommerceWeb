@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.SmartEnum.AutoFixture" Version="8.0.0" />
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Presentation\PublicServer\PublicServer.csproj" />
+    <ProjectReference Include="..\..\src\Presentation\WebApp\WebApp.csproj" />
+  </ItemGroup>
+
+</Project>

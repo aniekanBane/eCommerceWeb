@@ -23,8 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="EndpointFilters/" />
-    <Folder Include="Files/" />
+    <ProjectReference Include="..\..\Core\Application\Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\External\External.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Persistence\Persistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Migrator\Migrator.csproj" />
   </ItemGroup>
 
 </Project>
