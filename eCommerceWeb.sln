@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicServer", "src\Present
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApp", "src\Presentation\WebApp\WebApp.csproj", "{460248F4-0F76-4ED8-A9EE-957B06953BA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel", "src\Sharedkernel\SharedKernel.csproj", "{FBC3F73A-C9CF-4CF3-B3BE-D8A7E6265908}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel", "src\SharedKernel\SharedKernel.csproj", "{FBC3F73A-C9CF-4CF3-B3BE-D8A7E6265908}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1CEBC39D-05A9-49BA-A723-17141A8271EA}"
 EndProject
