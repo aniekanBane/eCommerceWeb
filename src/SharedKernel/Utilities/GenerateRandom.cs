@@ -1,4 +1,4 @@
-﻿namespace eCommerceWeb.Domain.Utilities;
+﻿namespace SharedKernel.Utilities;
 
 public static class GenerateRandom
 {

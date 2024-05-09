@@ -2,10 +2,15 @@
 
 public static class DomainModelConstants
 {
+    public const int GUID_STRING_ID_MAX_LENGTH = 36;
     public const int INDEX_STRING_MAX_LENGTH = 450;
+
     #region web
     public const int SEO_TITLE_MAX_LENGTH = 100; 
     public const int SEO_DESC_MAX_LENGTH = 400;
+    public const int SEO_KEYWORDS_MAX_LENGTH = 256;
+    public const int SEO_IMAGE_ALT_MAX_LENGTH = 125;
+    public const int SEO_IMAGE_DESC_MAX_LENGTH = 250;
     public const string SEO_URL_SLUG_REGEX = @"^[a-z]+(?:(\/|-)?[a-z]+)*$";
     #endregion
 
@@ -26,6 +31,7 @@ public static class DomainModelConstants
     #region catalog
     public const int CATEGORY_NAME_MAX_LENGTH = 128;
     public const int PRODUCT_SKU_LENGTH = 9;
+    public const int PRODUCT_ID_LENGTH = GUID_STRING_ID_MAX_LENGTH;
     public const int PRODUCT_NAME_MAX_LENGTH = 128;
     public const int PRODUCT_DESC_MAX_LENGTH = 2048;
     #endregion
@@ -37,5 +43,9 @@ public static class DomainModelConstants
 
     #region mediaFile
     public const long MEDIA_FILE_MAX_SIZE = 1024 * 1024 * 1000;
+    #endregion
+
+    #region tag
+    public const int TAG_NAME_MAX_LENGTH = 60;
     #endregion
 }
