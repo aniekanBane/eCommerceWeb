@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdminPanel\AdminPanel.csproj" />
-    <ProjectReference Include="..\..\Sharedkernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\..\SharedKernel\SharedKernel.csproj" />
     <ProjectReference Include="..\..\Core\Application\Application.csproj" />
     <ProjectReference Include="..\..\Infrastructure\External\External.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Migrator\Migrator.csproj" />
