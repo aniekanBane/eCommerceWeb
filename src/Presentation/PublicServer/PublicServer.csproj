@@ -5,7 +5,6 @@
     <RootNameSpace>eCommerceWeb.PublicServer</RootNameSpace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>ca3d3158-9152-4367-adbb-9f6c5d3c10fb</UserSecretsId>
   </PropertyGroup>
 
