@@ -1,0 +1,24 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+name: ecommerceweb
+
+services:
+  ecommerceweb-webapp:
+    image: ${DOCKER_REGISTRY-}ecommerceweb-webapp:latest
+    container_name: ecommerceweb-webapp
+    build:
+      context: .
+      dockerfile: src/Presentation/WebApp/Dockerfile
+      target: final
+    
+  ecommerceweb-public-api:
+    image: ${DOCKER_REGISTRY-}ecommerceweb-public-api:latest
+    container_name: ecommerceweb-public-api
+    build:
+      context: .
+      dockerfile: src/Presentation/PublicServer/Dockerfile
+      target: final
+
+networks:
+  default:
+    name: ecommerceweb-net
