@@ -16,14 +16,18 @@ services:
       - 6200:8080
       - 6217:8443
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_HTTPS_PORTS=8443
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${DEV_CERT_PASSWD}
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ASPNETCORE_DATAPROTECTION_CERTIFICATE=/data-protection/cert.pem
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
       - ~/.aspnet/https:/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+    depends_on:
+      ecommerceweb-redis:
+        condition: service_started
 
   ecommerceweb-public-api:
     image: ecommerceweb-public-api:dev
@@ -38,7 +42,7 @@ services:
       - 5200:8080
       - 5217:8443
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_HTTPS_PORTS=8443
       - ASPNETCORE_Kestrel__Certificates__Default__Password=${DEV_CERT_PASSWD}
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
@@ -47,6 +51,21 @@ services:
       - ~/.aspnet/https:/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
 
+  ecommerceweb-redis:
+    image: redis/redis-stack:latest
+    container_name: ecommerceweb-redis-cache
+    ports:
+      - 11001:6379
+      - 13333:8001
+    environment:
+      - REDIS_ARGS=--save 60 100 --appendonly yes
+    volumes:
+      - ecommerceweb-redis-data:/data
+
 networks:
   default:
     name: ecommerceweb-net
+
+volumes:
+  ecommerceweb-redis-data:
+    name: ecommerceweb-redis-data
