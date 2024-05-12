@@ -17,7 +17,7 @@ public sealed record class Address
         Guard.Against.StringTooLong(city, DomainModelConstants.CITY_MAX_LENGTH, nameof(city));
         Guard.Against.NullOrWhiteSpace(stateProvince, nameof(stateProvince));
         Guard.Against.NullOrWhiteSpace(country, nameof(country));
-        Guard.Against.StringTooLong(country, DomainModelConstants.COUNTRY_MAX_LENGTH, nameof(country));
+        Guard.Against.StringTooLong(country, DomainModelConstants.COUNTRY_NAME_MAX_LENGTH, nameof(country));
 
         if (line2 is not null)
             Guard.Against.StringTooLong(line2, DomainModelConstants.ADDRESS_LINE_MAX_LENGTH, nameof(line2));
