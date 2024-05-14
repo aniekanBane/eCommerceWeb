@@ -19,13 +19,16 @@ public static class DomainModelConstants
     public const int ADDRESS_LINE_MAX_LENGTH = 128;
     public const int CITY_MAX_LENGTH = 100;
     public const int ZIPCODE_MAX_LENGTH = 18;
-    public const int COUNTRY_MAX_LENGTH = 64;
     public const int EMAIL_MIN_LENGTH = 6;
     public const int EMAIL_MAX_LENGTH = 256;
     public const int PHONE_NUMBER_MAX_LENGTH = 13;
     public const string PHONE_NUMBER_REGEX = @"^\+?\d{7,15}$";
     public const string EMAIL_REGEX = @"^(?=.{6,256}$)(?=.{1,64}@.{4,254}$)" + 
         @"[a-z0-9]+(?:([.+]?|(_|-)+)[a-z0-9]+)*@[a-z](?:[-a-z]+\.)+[a-z]{2,6}$";
+    #endregion
+
+    #region country
+    public const int COUNTRY_NAME_MAX_LENGTH = 64;
     #endregion
 
     #region catalog

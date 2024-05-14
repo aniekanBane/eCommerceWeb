@@ -9,6 +9,10 @@ RUN dotnet restore
 RUN dotnet build -c $configuration -o /app/build --no-restore
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS dev
+RUN apk update; apk add openssl
+RUN mkdir -p /data-protection && openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes \
+    -keyout /data-protection/private.key -out /data-protection/cert.pem \
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
 COPY . /source
 WORKDIR "/source/src/Presentation/WebApp"
 CMD dotnet run --no-launch-profile
