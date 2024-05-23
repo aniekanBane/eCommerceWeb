@@ -1,17 +1,17 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80 443
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
 COPY . /source
-WORKDIR "/source/src/Presentation/PublicServer"
+WORKDIR "/source/src/Presentation/PublicApi"
 RUN dotnet restore
-RUN dotnet build -c $configuration -o /app/build
+RUN dotnet build -c $configuration -o /app/build --no-restore
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS dev
 COPY . /source
-WORKDIR "/source/src/Presentation/PublicServer"
+WORKDIR "/source/src/Presentation/PublicApi"
 CMD dotnet run --no-launch-profile
 
 FROM build AS publish
@@ -30,4 +30,4 @@ RUN adduser \
     appuser && chown -R appuser /app
 USER appuser
 
-ENTRYPOINT ["dotnet", "PublicServer.dll"]
+ENTRYPOINT ["dotnet", "PublicApi.dll"]

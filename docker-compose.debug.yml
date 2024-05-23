@@ -26,6 +26,8 @@ services:
       - ~/.aspnet/https:/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
     depends_on:
+      postgres-db:
+        condition: service_healthy
       ecommerceweb-redis:
         condition: service_started
 
@@ -34,7 +36,7 @@ services:
     container_name: ecommerceweb-public-api
     build:
       context: .
-      dockerfile: src/Presentation/PublicServer/Dockerfile
+      dockerfile: src/Presentation/PublicApi/Dockerfile
       args:
         - configuration=Debug
       target: dev
@@ -50,6 +52,28 @@ services:
       - ~/.vsdbg:/remote_debugger:rw
       - ~/.aspnet/https:/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      azurite-blob:
+        condition: service_started
+
+  postgres-db:
+    image: postgres:16.2-alpine3.19
+    container_name: ecommerceweb-db
+    restart: always
+    ports:
+      - 56791:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_DEFAULT_PASSWD}
+    volumes:
+      - ecommerceweb-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
 
   ecommerceweb-redis:
     image: redis/redis-stack:latest
@@ -62,6 +86,15 @@ services:
     volumes:
       - ecommerceweb-redis-data:/data
 
+  azurite-blob:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: ecommerceweb-blob-storage
+    ports:
+      - 10000:10000
+    volumes:
+      - ecommerceweb-blob-data:/data
+    command: "azurite-blob --blobHost 0.0.0.0 -l /data"
+
 networks:
   default:
     name: ecommerceweb-net
@@ -69,3 +102,7 @@ networks:
 volumes:
   ecommerceweb-redis-data:
     name: ecommerceweb-redis-data
+  ecommerceweb-db-data:
+    name: ecommerceweb-db-data
+  ecommerceweb-blob-data:
+    name: ecommerceweb-blob-data
