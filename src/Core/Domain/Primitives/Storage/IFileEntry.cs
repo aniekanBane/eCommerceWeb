@@ -3,6 +3,7 @@
 public interface IFileEntry
 {
     Guid Id { get; }
-    string Location { get; }
+    string ContentType { get; }
+    string FileLocation { get; }
     string FileName { get; }
 }

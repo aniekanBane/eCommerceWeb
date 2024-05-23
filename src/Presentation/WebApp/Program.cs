@@ -1,3 +1,5 @@
+using eCommerceWeb.External;
+using eCommerceWeb.Persistence;
 using Microsoft.AspNetCore.DataProtection;
 using StackExchange.Redis;
 
@@ -9,6 +11,10 @@ if (builder.Environment.IsDocker())
     builder.Services.AddDataProtection()
         .PersistKeysToStackExchangeRedis(redis);
 }
+
+builder.Services
+    .AddPersistence(builder.Configuration)
+    .AddExternalServices();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

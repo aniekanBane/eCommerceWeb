@@ -13,6 +13,7 @@ public static class ErrorMessages
     public static class FileEntry
     {
         public const string InvalidFileType = "Invalid file type option.";
+        public const string InvalidFile = "File extension not allowed.";
     }
 
     public static class Product
