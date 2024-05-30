@@ -67,8 +67,6 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options) : D
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.HasCollation(DbConstants.Collation.CASE_INSENSITIVE_COLLATION, "en-u-ks-level2", "icu", false);
-
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreDbContext).Assembly);
         modelBuilder.ApplyGlobalFilter<ISoftDeleteEntity>(e => !e.IsDeleted);
     }

@@ -7,14 +7,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace eCommerceWeb.Migrator.StoreMigrations
 {
     /// <inheritdoc />
-    public partial class CatalogAggInitMigration : Migration
+    public partial class CatalogAggInit_CollationFixMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:CollationDefinition:case_insensitive", "en-u-ks-level2,en-u-ks-level2,icu,False");
-
             migrationBuilder.CreateTable(
                 name: "category",
                 columns: table => new
@@ -22,8 +19,8 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:IdentitySequenceOptions", "'100221', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false, collation: "case_insensitive"),
-                    normalised_name = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    normalised_name = table.Column<string>(type: "text", nullable: false, computedColumnSql: "UPPER(name)", stored: true),
                     is_parent_category = table.Column<bool>(type: "boolean", nullable: false),
                     parent_category_id = table.Column<int>(type: "integer", nullable: true),
                     is_enabled = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
@@ -79,11 +76,11 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                 columns: table => new
                 {
                     id = table.Column<string>(type: "character(36)", fixedLength: true, maxLength: 36, nullable: false),
-                    name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false, collation: "case_insensitive"),
-                    normalised_name = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    normalised_name = table.Column<string>(type: "text", nullable: false, computedColumnSql: "UPPER(name)", stored: true),
                     description = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
-                    sku = table.Column<string>(type: "character(9)", fixedLength: true, maxLength: 9, nullable: false, collation: "case_insensitive"),
-                    normalised_sku = table.Column<string>(type: "text", nullable: false),
+                    sku = table.Column<string>(type: "character(9)", fixedLength: true, maxLength: 9, nullable: false),
+                    normalised_sku = table.Column<string>(type: "text", nullable: false, computedColumnSql: "UPPER(sku)", stored: true),
                     thumbnail_uri = table.Column<string>(type: "text", nullable: true),
                     on_sale = table.Column<bool>(type: "boolean", nullable: false),
                     unit_price = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
@@ -91,6 +88,7 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                     stock_quantity = table.Column<int>(type: "integer", nullable: true),
                     has_unlimited_stock = table.Column<bool>(type: "boolean", nullable: false),
                     visibility = table.Column<string>(type: "text", nullable: false, defaultValue: "Hidden"),
+                    publish_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_featured = table.Column<bool>(type: "boolean", nullable: false),
                     enable_product_reviews = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     enable_related_products = table.Column<bool>(type: "boolean", nullable: false),
@@ -109,6 +107,7 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                 {
                     table.PrimaryKey("pk_product", x => x.id);
                     table.CheckConstraint("ck_price", "(on_sale = TRUE AND sale_price > 0 AND sale_price < unit_price) OR (on_sale = FALSE AND sale_price = 0)");
+                    table.CheckConstraint("ck_publish_on", "visibility <> 'Scheduled' OR publish_on IS NOT NULL");
                     table.CheckConstraint("ck_stock", "(has_unlimited_stock = FALSE AND stock_quantity >= 0) OR (has_unlimited_stock AND stock_quantity IS NULL)");
                     table.CheckConstraint("ck_unit_price_value", "unit_price >= 0");
                     table.CheckConstraint("ck_visibility", "visibility IN ('Hidden', 'Public', 'Scheduled')");
@@ -215,8 +214,8 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false, collation: "case_insensitive"),
-                    normalised_name = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    normalised_name = table.Column<string>(type: "text", nullable: false, computedColumnSql: "UPPER(name)", stored: true),
                     discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     product_id = table.Column<string>(type: "character(36)", nullable: true)
                 },
@@ -231,9 +230,9 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_category_name",
+                name: "ix_category_normalised_name",
                 table: "category",
-                column: "name",
+                column: "normalised_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -242,15 +241,15 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                 column: "parent_category_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_product_name",
+                name: "ix_product_normalised_name",
                 table: "product",
-                column: "name",
+                column: "normalised_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_product_sku",
+                name: "ix_product_normalised_sku",
                 table: "product",
-                column: "sku",
+                column: "normalised_sku",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -269,9 +268,9 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                 column: "product_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tag_name",
+                name: "ix_tag_normalised_name",
                 table: "tag",
-                column: "name");
+                column: "normalised_name");
 
             migrationBuilder.CreateIndex(
                 name: "ix_tag_product_id",

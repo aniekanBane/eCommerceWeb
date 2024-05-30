@@ -32,9 +32,8 @@ internal static class ComplexObjectConfiguration
         builder.Property(n => n.Firstname).HasMaxLength(DomainModelConstants.NAME_MAX_LENGTH).HasColumnName("firstname");
         builder.Property(n => n.Lastname).HasMaxLength(DomainModelConstants.NAME_MAX_LENGTH).HasColumnName("lastname");
         builder.Property(n => n.Fullname)
-            .HasMaxLength(128)
             .HasColumnName("fullname")
-            .UseCollation(DbConstants.Collation.CASE_INSENSITIVE_COLLATION);
+            .HasComputedColumnSql("firstname || ' ' || lastname", true);
         builder.HasIndex(n => n.Fullname);
     }
 }

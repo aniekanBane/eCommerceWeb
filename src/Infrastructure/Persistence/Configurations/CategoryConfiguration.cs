@@ -11,9 +11,10 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Id).HasIdentityOptions(100221);
 
         builder.Property(c => c.Name)
-            .HasMaxLength(DomainModelConstants.CATEGORY_NAME_MAX_LENGTH)
-            .UseCollation(DbConstants.Collation.CASE_INSENSITIVE_COLLATION);
-        builder.HasIndex(c => c.Name).IsUnique();
+            .HasMaxLength(DomainModelConstants.CATEGORY_NAME_MAX_LENGTH);
+
+        builder.Property(c => c.NormalisedName).HasComputedColumnSql("UPPER(name)", true);
+        builder.HasIndex(c => c.NormalisedName).IsUnique();
 
         builder.Property(c => c.IsEnabled).HasDefaultValue(true);
         builder.Property(c => c.IsVisible).HasDefaultValue(true);

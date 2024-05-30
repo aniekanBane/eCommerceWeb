@@ -13,15 +13,14 @@ using eCommerceWeb.Persistence;
 namespace eCommerceWeb.Migrator.StoreMigrations
 {
     [DbContext(typeof(StoreDbContext))]
-    [Migration("20240523030725_CatalogAggInitMigration")]
-    partial class CatalogAggInitMigration
+    [Migration("20240530224953_CatalogAggInit_CollationFixMig")]
+    partial class CatalogAggInit_CollationFixMig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "en-u-ks-level2,en-u-ks-level2,icu,False")
                 .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -97,13 +96,14 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
-                        .HasColumnName("name")
-                        .UseCollation("case_insensitive");
+                        .HasColumnName("name");
 
                     b.Property<string>("NormalisedName")
                         .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("text")
-                        .HasColumnName("normalised_name");
+                        .HasColumnName("normalised_name")
+                        .HasComputedColumnSql("UPPER(name)", true);
 
                     b.Property<int?>("ParentCategoryId")
                         .HasColumnType("integer")
@@ -143,9 +143,9 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                     b.HasKey("Id")
                         .HasName("pk_category");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("NormalisedName")
                         .IsUnique()
-                        .HasDatabaseName("ix_category_name");
+                        .HasDatabaseName("ix_category_normalised_name");
 
                     b.HasIndex("ParentCategoryId")
                         .HasDatabaseName("ix_category_parent_category_id");
@@ -209,22 +209,29 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)")
-                        .HasColumnName("name")
-                        .UseCollation("case_insensitive");
+                        .HasColumnName("name");
 
                     b.Property<string>("NormalisedName")
                         .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("text")
-                        .HasColumnName("normalised_name");
+                        .HasColumnName("normalised_name")
+                        .HasComputedColumnSql("UPPER(name)", true);
 
                     b.Property<string>("NormalisedSku")
                         .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("text")
-                        .HasColumnName("normalised_sku");
+                        .HasColumnName("normalised_sku")
+                        .HasComputedColumnSql("UPPER(sku)", true);
 
                     b.Property<bool>("OnSale")
                         .HasColumnType("boolean")
                         .HasColumnName("on_sale");
+
+                    b.Property<DateTime?>("PublishOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("publish_on");
 
                     b.Property<decimal>("SalePrice")
                         .HasColumnType("numeric(10,2)")
@@ -235,8 +242,7 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                         .HasMaxLength(9)
                         .HasColumnType("character(9)")
                         .HasColumnName("sku")
-                        .IsFixedLength()
-                        .UseCollation("case_insensitive");
+                        .IsFixedLength();
 
                     b.Property<string>("SocialImageUrl")
                         .HasColumnType("text")
@@ -295,17 +301,19 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                     b.HasKey("Id")
                         .HasName("pk_product");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("NormalisedName")
                         .IsUnique()
-                        .HasDatabaseName("ix_product_name");
+                        .HasDatabaseName("ix_product_normalised_name");
 
-                    b.HasIndex("Sku")
+                    b.HasIndex("NormalisedSku")
                         .IsUnique()
-                        .HasDatabaseName("ix_product_sku");
+                        .HasDatabaseName("ix_product_normalised_sku");
 
                     b.ToTable("product", null, t =>
                         {
                             t.HasCheckConstraint("ck_price", "(on_sale = TRUE AND sale_price > 0 AND sale_price < unit_price) OR (on_sale = FALSE AND sale_price = 0)");
+
+                            t.HasCheckConstraint("ck_publish_on", "visibility <> 'Scheduled' OR publish_on IS NOT NULL");
 
                             t.HasCheckConstraint("ck_stock", "(has_unlimited_stock = FALSE AND stock_quantity >= 0) OR (has_unlimited_stock AND stock_quantity IS NULL)");
 
@@ -482,19 +490,20 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)")
-                        .HasColumnName("name")
-                        .UseCollation("case_insensitive");
+                        .HasColumnName("name");
 
                     b.Property<string>("NormalisedName")
                         .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("text")
-                        .HasColumnName("normalised_name");
+                        .HasColumnName("normalised_name")
+                        .HasComputedColumnSql("UPPER(name)", true);
 
                     b.HasKey("Id")
                         .HasName("pk_tag");
 
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_tag_name");
+                    b.HasIndex("NormalisedName")
+                        .HasDatabaseName("ix_tag_normalised_name");
 
                     b.ToTable("tag", (string)null);
 
