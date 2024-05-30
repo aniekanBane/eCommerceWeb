@@ -20,16 +20,25 @@ internal abstract class Repository<TEntity, TDbContext>(TDbContext dbContext)
         return await dbSet.Where(filter).ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task<TUmapped?> GetBySqlQueryAsync<TUmapped>(
+    public async Task<int> CountAsync<TUnMapped>(
         FormattableString sql, 
         CancellationToken cancellationToken = default)
     {
         return await dbContext.Database
-            .SqlQuery<TUmapped>(sql)
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            .SqlQuery<TUnMapped>(sql)
+            .CountAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TUnMapped>> SqlQueryListAsync<TUnMapped>(
+    public async Task<TUnMapped?> FirstOrDefaultAsync<TUnMapped>(
+        FormattableString sql, 
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Database
+            .SqlQuery<TUnMapped>(sql)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<TUnMapped>> ListAsync<TUnMapped>(
         FormattableString sql, 
         CancellationToken cancellationToken = default)
     {
@@ -37,6 +46,8 @@ internal abstract class Repository<TEntity, TDbContext>(TDbContext dbContext)
             .SqlQuery<TUnMapped>(sql)
             .ToListAsync(cancellationToken);
     }
+
+    #region overrides
     
     public override async Task<TEntity> AddAsync(
         TEntity entity, 
@@ -93,4 +104,7 @@ internal abstract class Repository<TEntity, TDbContext>(TDbContext dbContext)
         dbSet.UpdateRange(entities);
         return Task.CompletedTask;
     }
+
+    #endregion
+
 }
