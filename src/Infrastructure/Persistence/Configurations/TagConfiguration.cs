@@ -9,8 +9,9 @@ internal sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
     public void Configure(EntityTypeBuilder<Tag> builder)
     {
         builder.Property(t => t.Name)
-            .HasMaxLength(DomainModelConstants.TAG_NAME_MAX_LENGTH)
-            .UseCollation(DbConstants.Collation.CASE_INSENSITIVE_COLLATION);
-        builder.HasIndex(t => t.Name);
+            .HasMaxLength(DomainModelConstants.TAG_NAME_MAX_LENGTH);
+
+        builder.Property(t => t.NormalisedName).HasComputedColumnSql("UPPER(name)", true);
+        builder.HasIndex(t => t.NormalisedName);
     }
 }

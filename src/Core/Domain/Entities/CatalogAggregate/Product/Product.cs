@@ -9,18 +9,10 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
 
     /* Details */
     public string Name { get; private set; }
-    public string NormalisedName 
-    { 
-        get => Name.ToUpper(); 
-        private set {}
-    }
+    public string NormalisedName { get; private set; }
     public string? Description { get; private set; }
     public string Sku { get; private set; }
-    public string NormalisedSku 
-    {
-        get => Sku.ToUpper();
-        private set {}
-    }
+    public string NormalisedSku { get; private set; }
 
     /* Images */
     public string? ThumbnailUri
@@ -42,6 +34,7 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
 
     /* Organization */
     public Visibility Visibility { get; private set; }
+    public DateTime? PublishOn  { get; private set; }
     private readonly List<Category> _categories = [];
     public IReadOnlyCollection<Category> Categories => _categories.AsReadOnly();
     private readonly List<ProductTag> _tags = [];
@@ -67,7 +60,7 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
 
     public Product(ProductCreationModel creationModel)
     {
-        Id = Guid.NewGuid().ToString();
+        Id = Guid.NewGuid().ToString("N");
         Visibility = Visibility.Hidden();
         IsFeatured = creationModel.IsFeatured;
         EnableProductReviews = creationModel.EnableProductReviews;
@@ -77,7 +70,8 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
             creationModel.MetaKeywords, creationModel.MetaDescription
         );
         SocialImageUrl = creationModel.SocialImageUrl;
-        SetDetails(creationModel.Sku, creationModel.Name, creationModel.Description);
+        SetName(creationModel.Name);
+        SetDetails(creationModel.Sku, creationModel.Description);
         SetPrice(creationModel.OnSale, creationModel.UnitPrice, creationModel.SalePrice);
         SetStock(creationModel.HasUnlimitedStock, creationModel.StockQuantity);
     }
@@ -110,10 +104,23 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
         return this;
     }
 
-    public Product SetVisibility(string visibility)
+    public Product SetName(string name)
     {
-        Visibility = Visibility.Of(visibility); // TODO: Add Schedule Implementation
+        Guard.Against.NullOrWhiteSpace(name, nameof(name));
+        Guard.Against.StringTooLong(name, DomainModelConstants.PRODUCT_NAME_MAX_LENGTH, nameof(name));
         
+        Name = name;
+        return this;
+    }
+
+    public Product SetVisibility(string visibility, DateTime? publishOn = default)
+    {
+        Visibility = Visibility.Of(visibility);
+        if (visibility == Visibility.Scheduled())
+        {
+            Guard.Against.NullOrDefault(publishOn, nameof(publishOn));
+            PublishOn = publishOn;
+        }
         return this;
     }
 
@@ -127,17 +134,15 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
             updateModel.MetaKeywords, updateModel.MetaDescription
         );
         SocialImageUrl = updateModel.SocialImageUrl;
-        SetDetails(updateModel.Sku, updateModel.Name, updateModel.Description);
+        SetName(updateModel.Name);
+        SetDetails(updateModel.Sku, updateModel.Description);
         SetPrice(updateModel.OnSale, updateModel.UnitPrice, updateModel.SalePrice);
         SetStock(updateModel.HasUnlimitedStock, updateModel.StockQuantity);
         return this;
     }
 
-    private void SetDetails(string sku, string name, string? description)
+    private void SetDetails(string sku, string? description)
     {
-        Guard.Against.NullOrWhiteSpace(name, nameof(name));
-        Guard.Against.StringTooLong(name, DomainModelConstants.PRODUCT_NAME_MAX_LENGTH, nameof(name));
-
         Guard.Against.NullOrWhiteSpace(sku, nameof(sku));
         Guard.Against.InvalidStringLength(DomainModelConstants.PRODUCT_SKU_LENGTH, sku, nameof(sku));
 
@@ -145,7 +150,6 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
             Guard.Against.StringTooLong(description, DomainModelConstants.PRODUCT_DESC_MAX_LENGTH, nameof(description));
 
         Sku = sku;
-        Name = name;
         Description = description;
     }
 

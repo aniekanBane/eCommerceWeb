@@ -15,15 +15,17 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsFixedLength();
 
         builder.Property(p => p.Name)
-            .HasMaxLength(DomainModelConstants.PRODUCT_NAME_MAX_LENGTH)
-            .UseCollation(DbConstants.Collation.CASE_INSENSITIVE_COLLATION);
-        builder.HasIndex(p => p.Name).IsUnique();
+            .HasMaxLength(DomainModelConstants.PRODUCT_NAME_MAX_LENGTH);
+
+        builder.Property(p => p.NormalisedName).HasComputedColumnSql("UPPER(name)", true);
+        builder.HasIndex(p => p.NormalisedName).IsUnique();
 
         builder.Property(p => p.Sku)
             .HasMaxLength(DomainModelConstants.PRODUCT_SKU_LENGTH)
-            .IsFixedLength()
-            .UseCollation(DbConstants.Collation.CASE_INSENSITIVE_COLLATION);;
-        builder.HasIndex(p => p.Sku).IsUnique();
+            .IsFixedLength();
+
+        builder.Property(p => p.NormalisedSku).HasComputedColumnSql("UPPER(sku)", true);
+        builder.HasIndex(p => p.NormalisedSku).IsUnique();
 
         builder.Property(p => p.Description).HasMaxLength(DomainModelConstants.PRODUCT_DESC_MAX_LENGTH);
 
@@ -59,6 +61,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.ToTable(b =>
         {
             b.HasCheckConstraint("ck_visibility", $"visibility IN ('{string.Join("', '", Visibility.ListNames())}')");
+            b.HasCheckConstraint("ck_publish_on", $"visibility <> '{Visibility.Scheduled().Value}' OR publish_on IS NOT NULL");
             b.HasCheckConstraint("ck_unit_price_value", "unit_price >= 0");
             b.HasCheckConstraint(
                 "ck_stock", 

@@ -16,11 +16,7 @@ public sealed class Category : AuditableEntity<int>, IAggregateRoot
 
     /* Details */
     public string Name { get; private set; }
-    public string NormalisedName 
-    { 
-        get => Name.ToUpper(); 
-        private set {} 
-    }
+    public string NormalisedName { get; private set; }
 
     /* Organization */
     public bool IsParentCategory 

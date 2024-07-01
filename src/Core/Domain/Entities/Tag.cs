@@ -5,11 +5,7 @@ namespace eCommerceWeb.Domain.Entities;
 public abstract class Tag : Entity<int>
 {
     public string Name { get; private set; }
-    public string NormalisedName 
-    {
-        get => Name.ToUpper();
-        private set {}
-    }
+    public string NormalisedName { get; private set; }
 
     protected Tag(string name) : this()
     {

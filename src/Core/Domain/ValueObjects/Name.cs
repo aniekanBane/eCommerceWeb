@@ -4,11 +4,9 @@ public sealed record class Name
 {
     public string Firstname { get; init; }
     public string Lastname { get; init; }
-    public string Fullname 
-    { 
-        get => string.Join(' ', Firstname, Lastname); 
-        private init {}
-    }
+    public string Fullname { get; init; }
+
+    #pragma warning disable CS8618
 
     public Name(string firstname, string lastname)
     {
@@ -19,6 +17,5 @@ public sealed record class Name
         Lastname = lastname;
     }
 
-    #pragma warning disable CS8618
-    private Name() {} // EF Core
+    private Name() { } // EF Core
 }

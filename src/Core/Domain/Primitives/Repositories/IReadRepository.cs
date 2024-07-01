@@ -6,13 +6,18 @@ namespace eCommerceWeb.Domain.Primitives.Repositories;
 public interface IReadRepository<TEntity> : IReadRepositoryBase<TEntity> 
     where TEntity : class, IEntity, IAggregateRoot
 {
-    Task<TUmapped?> GetBySqlQueryAsync<TUmapped>(
-        FormattableString sql, 
+    Task<int> CountAsync<TUnMapped>(
+        FormattableString @sql, 
+        CancellationToken cancellationToken= default
+    );
+
+    Task<TUnMapped?> FirstOrDefaultAsync<TUnMapped>(
+        FormattableString @sql, 
         CancellationToken cancellationToken = default
     );
 
-    Task<IEnumerable<TUnMapped>> SqlQueryListAsync<TUnMapped>(
-        FormattableString sql, 
-        CancellationToken cancellationToken = default
+    Task<IEnumerable<TUnMapped>> ListAsync<TUnMapped>(
+        FormattableString @sql, 
+        CancellationToken cancellationToken= default
     );
 }
