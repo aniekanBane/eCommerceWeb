@@ -32,14 +32,14 @@ public class ProductFilterSpec : Specification<Product>
     public ProductFilterSpec(string? filter)
     {
         if (!string.IsNullOrWhiteSpace(filter))
-            {
-                filter = filter.ToUpper();
-                Query.AsNoTracking().Include(p => p.Categories)
-                    .Where(p => p.NormalisedName.Contains(filter)
-                    || p.Tags.Any(t => t.NormalisedName.Contains(filter))
-                    || p.Categories.Any(c => c.NormalisedName.Contains(filter)))
-                    .OrderBy(p => p.Name);
-            }
+        {
+            filter = filter.ToUpper();
+            Query.AsNoTracking().Include(p => p.Categories)
+                .Where(p => p.NormalisedName.Contains(filter)
+                || p.Tags.Any(t => t.NormalisedName.Contains(filter))
+                || p.Categories.Any(c => c.NormalisedName.Contains(filter)))
+                .OrderBy(p => p.Name);
+        }
     }
 }
 
@@ -54,5 +54,7 @@ public class ProductPagedFilterSpec : ProductFilterSpec
 
         if (string.IsNullOrWhiteSpace(filter))
             Query.OrderByDescending(p => p.LastModifiedOnUtc);
+
+        Query.AsSplitQuery();
     }
 }
