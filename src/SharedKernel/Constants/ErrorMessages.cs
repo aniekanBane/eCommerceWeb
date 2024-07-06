@@ -8,6 +8,8 @@ public static class ErrorMessages
         public const string NullOrEmptyId = "Id is null or empty";
         public const string DefaultDateTime = "Cannot have default date/time value";
         public const string ValidationError = "One or more validation failures have occurred.";
+        public const string RequestError = "Error while processing request.";
+        public const string ServerError = "Unknown error occured.";
     }
 
     public static class FileEntry
