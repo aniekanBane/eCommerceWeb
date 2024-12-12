@@ -2,18 +2,23 @@
 
 public sealed record class PhoneNumber
 {
-    public string Number { get; } = default!;
+    public string Number { get; }
 
     public PhoneNumber(string number)
     {
         Guard.Against.NullOrWhiteSpace(number, nameof(number));
         Guard.Against.InvalidFormat(number, nameof(number), DomainModelConstants.PHONE_NUMBER_REGEX);
-        Number = number.TrimStart('+');
+        Number = NormalizeNumber(number);
     }
 
-    private PhoneNumber() {}
+    #pragma warning disable CS8618
+    private PhoneNumber() { } // EF Core
+    #pragma warning restore CS8618
 
     public static PhoneNumber Of(string value) => new(value);
     public static explicit operator PhoneNumber(string value) => new(value);
     public static implicit operator string(PhoneNumber number) => number.Number;
+
+    private static string NormalizeNumber(string number) 
+        => number.TrimStart('+').Replace(" ", "").Replace("-", "");
 }

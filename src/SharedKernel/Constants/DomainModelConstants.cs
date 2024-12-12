@@ -11,7 +11,7 @@ public static class DomainModelConstants
     public const int SEO_KEYWORDS_MAX_LENGTH = 256;
     public const int SEO_IMAGE_ALT_MAX_LENGTH = 125;
     public const int SEO_IMAGE_DESC_MAX_LENGTH = 250;
-    public const string SEO_URL_SLUG_REGEX = @"^[a-z0-9]+(?:(\/|-)[a-z0-9]+)*$";
+    public const string SEO_URL_SLUG_REGEX = @"^[a-z0-9]+(?:(?:-|\/)[a-z0-9]+)*$";
     #endregion
 
     #region value objects
@@ -22,7 +22,7 @@ public static class DomainModelConstants
     public const int EMAIL_MIN_LENGTH = 6;
     public const int EMAIL_MAX_LENGTH = 256;
     public const int PHONE_NUMBER_MAX_LENGTH = 13;
-    public const string PHONE_NUMBER_REGEX = @"^\+?\d{7,15}$";
+    public const string PHONE_NUMBER_REGEX = @"^\+?(?:[0-9][ -]?){6,14}[0-9]$";
     public const string EMAIL_REGEX = @"^(?=.{6,256}$)(?=.{1,64}@.{4,254}$)" + 
         @"[a-z0-9]+(?:([.+]?|(_|-)+)[a-z0-9]+)*@[a-z](?:[-a-z]+\.)+[a-z]{2,6}$";
     #endregion

@@ -34,4 +34,5 @@ public sealed record class Address
 
     #pragma warning disable CS8618
     private Address() { } //EF Core
+    #pragma warning restore CS8618
 }
