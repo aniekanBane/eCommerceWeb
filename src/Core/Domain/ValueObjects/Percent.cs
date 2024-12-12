@@ -2,7 +2,7 @@
 
 // source: https://github.com/asc-lab/better-code-with-ddd/blob/ef_core/LoanApplication.TacticalDdd/LoanApplication.TacticalDdd/DomainModel/Percent.cs
 
-public sealed record class Percent
+public sealed record class Percent : IComparable<Percent>
 {
     public static readonly Percent Zero = new(0M);
     public static readonly Percent Hundered = new(100M);
@@ -11,8 +11,7 @@ public sealed record class Percent
 
     public Percent(decimal value)
     {
-        Guard.Against.Negative(value, nameof(value));
-        Value = value;
+        Value = Guard.Against.Negative(value, nameof(value));
     }
 
     private Percent() { } // EF Core
@@ -23,8 +22,8 @@ public sealed record class Percent
     public static bool operator <(Percent left, Percent right) => left.CompareTo(right)<0; 
     public static bool operator >=(Percent left, Percent right) => left.CompareTo(right)>=0; 
     public static bool operator <=(Percent left, Percent right) => left.CompareTo(right)<=0;
-
-    private int CompareTo(Percent other) => Value.CompareTo(other.Value);
+    
+    public int CompareTo(Percent? other) => Value.CompareTo(other?.Value);
 }
 
 public static class PercentExtensions

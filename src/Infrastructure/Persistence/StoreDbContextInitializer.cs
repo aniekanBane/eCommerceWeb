@@ -1,4 +1,5 @@
-﻿using eCommerceWeb.Application.Abstractions.Database;
+﻿using Bogus;
+using eCommerceWeb.Application.Abstractions.Database;
 using eCommerceWeb.Domain.Entities.CatalogAggregate;
 using eCommerceWeb.Domain.Entities.Misc;
 using eCommerceWeb.Domain.Primitives.Storage;
@@ -12,6 +13,8 @@ internal sealed class StoreDbContextInitializer(
     IFileStorageManger fileStorageManger,
     ILogger<StoreDbContextInitializer> logger) : IDatabaseInitializer
 {
+    private static readonly Faker _faker = new();
+
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -102,14 +105,14 @@ internal sealed class StoreDbContextInitializer(
             {
                 var name = names[i];
                 var(sale, unitP, saleP) = price[i];
-                var isUnlimited = Faker.Boolean.Random();
-                int? quantity = isUnlimited ? null : Faker.RandomNumber.Next(25);
-                var sku = $"SQ{Faker.RandomNumber.Next(1001111, 9919019)}";
-                var desc = string.Join(Environment.NewLine, Faker.Lorem.Sentences(Faker.RandomNumber.Next(1, 5)));
+                var isUnlimited = _faker.Random.Bool();
+                int? quantity = isUnlimited ? null : _faker.Random.Int(25);
+                var sku = $"SQ{_faker.Random.Int(1001111, 9919019)}";
+                var desc = string.Join(Environment.NewLine, _faker.Lorem.Sentences(_faker.Random.Int(1, 5)));
                 var model = new ProductCreationModel(
                     sku, name, desc, // details
                     sale, unitP, saleP, quantity, isUnlimited, // inventory
-                    Faker.Boolean.Random(), true, false, SeoHelper.GenerateUrlSlug(name), Faker.Lorem.Sentence(2),
+                    _faker.Random.Bool(), true, false, SeoHelper.GenerateUrlSlug(name), _faker.Lorem.Sentence(2),
                     null, null, null // seo
                 );
 

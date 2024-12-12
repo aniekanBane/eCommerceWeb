@@ -7,7 +7,6 @@ public sealed record class Name
     public string Fullname { get; init; }
 
     #pragma warning disable CS8618
-
     public Name(string firstname, string lastname)
     {
         Guard.Against.StringTooLong(firstname, DomainModelConstants.NAME_MAX_LENGTH, nameof(firstname));
@@ -18,4 +17,5 @@ public sealed record class Name
     }
 
     private Name() { } // EF Core
+    #pragma warning restore CS8618
 }

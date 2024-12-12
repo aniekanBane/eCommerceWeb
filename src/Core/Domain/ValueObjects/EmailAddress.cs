@@ -2,7 +2,7 @@
 
 public sealed record class EmailAddress
 {
-    public string Value { get; } = default!;
+    public string Value { get; }
 
     public EmailAddress(string value)
     {
@@ -11,7 +11,9 @@ public sealed record class EmailAddress
         Value = value;
     }
 
+    #pragma warning disable CS8618
     private EmailAddress() { } // EF Core
+    #pragma warning restore CS8618
 
     public static EmailAddress Of(string value) => new(value);
     public static explicit operator EmailAddress(string value) => new(value);
