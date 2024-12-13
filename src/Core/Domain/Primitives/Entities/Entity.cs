@@ -40,6 +40,6 @@ public abstract class Entity<TId> : IEntity<TId>, IEquatable<Entity<TId>>
 
     public override int GetHashCode()
     {
-        return Id?.GetHashCode() ^ 31 ?? base.GetHashCode();
+        return EqualityComparer<TId>.Default.GetHashCode();
     }
 }
