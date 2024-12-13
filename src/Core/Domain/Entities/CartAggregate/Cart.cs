@@ -18,7 +18,6 @@ public sealed class Cart : AuditableEntityWithDomainEvent<int>, IAggregateRoot
     private readonly List<CartItem> _cartItems = [];
     public IReadOnlyCollection<CartItem> CartItems => _cartItems.AsReadOnly();
 
-    [NotAuditable]
     public int TotalItems => _cartItems.Sum(i => i.Quantity);
 
     public void AddItem(string productId, decimal unitPrice, int quantity = 1)
