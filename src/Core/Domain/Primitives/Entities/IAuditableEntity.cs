@@ -3,8 +3,8 @@
 public interface IAuditableEntity
 {
     uint Version { get; }
-    string Author { get; }
+    string CreatedBy { get; }
     DateTime CreatedOnUtc { get; }
-    string Editor { get; }
+    string LastModifiedBy { get; }
     DateTime LastModifiedOnUtc { get; }
 }

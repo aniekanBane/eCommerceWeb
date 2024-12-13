@@ -37,29 +37,34 @@ internal sealed class AuditableEntitySaveInterceptor(IDateTimeProvider dateTimeP
             switch(entry.State)
             {
                 case EntityState.Added:
-                    entry.Property(e => e.Author).CurrentValue = username;
+                    entry.Property(e => e.CreatedBy).CurrentValue = username;
                     entry.Property(e => e.CreatedOnUtc).CurrentValue = dateTime;
-                    entry.Property(e => e.Editor).CurrentValue = username;
-                    entry.Property(e => e.LastModifiedOnUtc).CurrentValue = dateTime;
+                    SetModifiedproperties(entry);
                     break;
 
                 case EntityState.Modified:
-                    entry.Property(e => e.Editor).CurrentValue = username;
-                    entry.Property(e => e.LastModifiedOnUtc).CurrentValue = dateTime;
+                    SetModifiedproperties(entry);
                     break;
 
                 case EntityState.Deleted when entry.Entity is ISoftDeleteEntity: 
-                    entry.Property("IsDeleted").CurrentValue = true;
+                    entry.Property(nameof(ISoftDeleteEntity.IsDeleted)).CurrentValue = true;
+                    entry.Property(nameof(ISoftDeleteEntity.DeletedBy)).CurrentValue = username;
+                    entry.Property(nameof(ISoftDeleteEntity.DeletedOnUtc)).CurrentValue = dateTime;
                     entry.State = EntityState.Modified;
                     break; 
 
                 case EntityState.Unchanged when entry.HasChangedOwnedEntities():
-                    entry.Property(e => e.Editor).CurrentValue = username;
-                    entry.Property(e => e.LastModifiedOnUtc).CurrentValue = dateTime;
+                    SetModifiedproperties(entry);
                     break;
 
                 default: break;
             }
+        }
+
+        void SetModifiedproperties(EntityEntry<IAuditableEntity> entityEntry)
+        {
+            entityEntry.Property(e => e.LastModifiedBy).CurrentValue = username;
+            entityEntry.Property(e => e.LastModifiedOnUtc).CurrentValue = dateTime;
         }
     }
 }
