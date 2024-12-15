@@ -57,9 +57,10 @@ public class EntityTypeTests
     {
         // Arrange
         var entity = new TestEntity(Guid.NewGuid());
+        var entityRef = entity;
 
         // Act & Assert
-        (entity == entity).Should().BeTrue();
+        (entity == entityRef).Should().BeTrue();
     }
 
     [Fact]

@@ -7,9 +7,6 @@ namespace eCommerceWeb.Domain.Entities;
 
 public sealed class Subcriber : AuditableEntityWithDomainEvent<int>, IAggregateRoot
 {
-    #pragma warning disable CS8618
-    private Subcriber() { } // EF Core
-
     public Subcriber(SubcriberCreationModel creationModel)
     {
         Name = new(creationModel.Firstname, creationModel.Lastname);
@@ -19,14 +16,18 @@ public sealed class Subcriber : AuditableEntityWithDomainEvent<int>, IAggregateR
         RaiseDomainEvent(new SubcribedEvent(this));
     }
 
+    #pragma warning disable CS8618
+    private Subcriber() { } // EF Core
+    #pragma warning restore CS8618
+
     public Name Name { get; private set; }
-    public EmailAddress EmailAddress { get; init; }
+    public EmailAddress EmailAddress { get; private set; }
     public bool AcceptsMarketing { get; private set; }
 
     private readonly List<MailingListSubcriber> _mailingLists = [];
     public IReadOnlyCollection<MailingListSubcriber> MailingLists => _mailingLists.AsReadOnly();
 
-    public void UnSubcribe() => RaiseDomainEvent(new UnSubcribedEvent(this));
+    public void Remove() => RaiseDomainEvent(new UnSubcribedEvent(this));
 
     public Subcriber Update(SubcriberUpdateModel updateModel)
     {

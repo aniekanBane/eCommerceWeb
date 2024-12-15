@@ -16,7 +16,8 @@ public sealed record class ProductOrdered
     }
 
     #pragma warning disable CS8618
-    private ProductOrdered() {}
+    private ProductOrdered() { } // EF Core
+    #pragma warning restore CS8618
 
     public string ProductId { get; init; }
     public string ProductSku { get; init; }

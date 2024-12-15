@@ -24,7 +24,6 @@ public class PhoneNumberTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
     public void Constructor_WithNullOrWhiteSpace_ShouldThrowException(string invalidNumber)

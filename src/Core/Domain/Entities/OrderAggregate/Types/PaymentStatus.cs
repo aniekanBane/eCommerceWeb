@@ -16,6 +16,8 @@ public sealed record class PaymentStatus
         Value = value;
     }
 
+    private PaymentStatus() { } // EF Core
+
     public bool MoveTo(string value)
     {
         var status = Parse(value);

@@ -2,9 +2,9 @@
 
 public sealed record class Name
 {
-    public string Firstname { get; init; }
-    public string Lastname { get; init; }
-    public string Fullname { get; init; }
+    public string Firstname { get; }
+    public string Lastname { get; }
+    public string Fullname { get; }
 
     #pragma warning disable CS8618
     public Name(string firstname, string lastname)

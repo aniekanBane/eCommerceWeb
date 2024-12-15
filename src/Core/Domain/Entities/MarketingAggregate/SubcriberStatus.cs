@@ -16,6 +16,8 @@ public sealed record SubcriberStatus
         Value = status;
     }
 
+    private SubcriberStatus() { } // EF Core
+
     public static implicit operator string(SubcriberStatus status) => status.Value;
 
     public static SubcriberStatus Of(string value) => new(value);

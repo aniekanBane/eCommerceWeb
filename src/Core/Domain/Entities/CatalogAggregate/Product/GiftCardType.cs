@@ -16,6 +16,8 @@ public sealed record class GiftCardType
         Value = value;
     }
 
+    private GiftCardType() { } // EF Core
+
     public static implicit operator string(GiftCardType value) => value.Value;
 
     public static GiftCardType Of(string value) => new(value);
@@ -32,8 +34,6 @@ public sealed record class GiftCardType
         return result;
     }
 
-    private GiftCardType() {} // EF Core
-
     private abstract class GiftCardTypeEnum(string name, ushort value) 
         : SmartEnum<GiftCardTypeEnum, ushort>(name, value)
     {
@@ -41,6 +41,6 @@ public sealed record class GiftCardType
         public static readonly GiftCardTypeEnum Physical = new PhysicalType();
 
         private sealed class VirtualType() : GiftCardTypeEnum("Virtual", 1);
-        public sealed class PhysicalType() : GiftCardTypeEnum("Physical", 2);
+        private sealed class PhysicalType() : GiftCardTypeEnum("Physical", 2);
     }
 }

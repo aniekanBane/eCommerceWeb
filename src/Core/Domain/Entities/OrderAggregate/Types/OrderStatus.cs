@@ -16,6 +16,8 @@ public sealed record class OrderStatus
         Value = value;
     }
 
+    private OrderStatus() { } // EF Core
+
     public bool MoveTo(string value)
     {
         var status = Parse(value);
