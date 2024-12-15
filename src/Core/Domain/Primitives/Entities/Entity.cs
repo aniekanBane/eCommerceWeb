@@ -9,7 +9,7 @@ public abstract class Entity<TId> : IEntity<TId>, IEquatable<Entity<TId>>
     [Column(Order = 0)]
     public TId Id { get; protected init; } = default!;
 
-    public static bool operator ==(Entity<TId> left, Entity<TId> right)
+    public static bool operator ==(Entity<TId>? left, Entity<TId>? right)
     {
         if (left is null && right is null)
             return true;
@@ -20,7 +20,7 @@ public abstract class Entity<TId> : IEntity<TId>, IEquatable<Entity<TId>>
         return left.Equals(right);
     }
 
-    public static bool operator !=(Entity<TId> left, Entity<TId> right)
+    public static bool operator !=(Entity<TId>? left, Entity<TId>? right)
     {
         return !(left == right);
     }

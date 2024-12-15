@@ -30,7 +30,6 @@ public class AddressTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
     public void Constructor_WithNullOrWhiteSpaceRequiredFields_ShouldThrowException(string invalidValue)

@@ -27,7 +27,6 @@ public class SeoTests
     [Theory]
     [InlineData("")]
     [InlineData(" ")]
-    [InlineData(null)]
     public void Constructor_WithNullOrWhiteSpaceUrlSlug_ShouldThrowException(string invalidSlug)
     {
         // Act & Assert

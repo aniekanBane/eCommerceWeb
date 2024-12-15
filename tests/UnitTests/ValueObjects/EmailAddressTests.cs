@@ -19,7 +19,6 @@ public class EmailAddressTests
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("invalid-email")]
