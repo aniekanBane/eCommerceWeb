@@ -128,12 +128,7 @@ internal sealed class StoreDbContextInitializer(
 
                     await fileStorageManger.UploadAsync(file, stream, cancellationToken);
 
-                    product.AddImage(new()
-                    { 
-                        Uri = file.FileLocation, 
-                        IsThumbnail = true, 
-                        DisplayOrder = 1 
-                    });
+                    product.AddImage(new(file.FileLocation, null, true, 1));
                 }
 
                 await storeDbContext.Set<Product>().AddAsync(product, cancellationToken);

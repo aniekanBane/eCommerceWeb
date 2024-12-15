@@ -4,7 +4,9 @@ namespace eCommerceWeb.Domain.Entities.MarketingAggregate;
 
 public sealed class MailingList: AuditableEntity<int>, IAggregateRoot
 {
-    private MailingList(string name) => Name = name;
+    #pragma warning disable CS8618
+    private MailingList() { } // EF Core
+    #pragma warning restore CS8618
 
     public string Name { get; private set; }
     public string NormalisedName 
@@ -19,21 +21,18 @@ public sealed class MailingList: AuditableEntity<int>, IAggregateRoot
     public static MailingList Create(string name)
     {
         Guard.Against.NullOrWhiteSpace(name, nameof(name));
-        return new MailingList(name);
+        return new MailingList { Name = name };
     }
 
     public MailingList AddSubcriber(Subcriber subcriber)
     {
-        _subcribers.Add(new (subcriber.Id, Id));
+        _subcribers.Add(new(subcriber.Id, Id));
         return this;
     }
 
     public MailingList Rename(string name)
     {
-        Guard.Against.NullOrWhiteSpace(name, nameof(name));
-
-        Name = name;
-        
+        Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
         return this;
     }
 }

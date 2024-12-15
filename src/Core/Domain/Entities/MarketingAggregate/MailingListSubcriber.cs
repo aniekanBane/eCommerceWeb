@@ -4,8 +4,6 @@ namespace eCommerceWeb.Domain.Entities.MarketingAggregate;
 
 public sealed class MailingListSubcriber : Entity<int>
 {
-    private MailingListSubcriber() { } // EF Core
-
     internal MailingListSubcriber(
         int subcriberId, 
         int mailingListId)
@@ -13,6 +11,8 @@ public sealed class MailingListSubcriber : Entity<int>
         SubcriberId = subcriberId;
         MailingListId = mailingListId;
     }
+    
+    private MailingListSubcriber() { } // EF Core
 
     public int SubcriberId { get; private set; }
     public int MailingListId { get; private set; }

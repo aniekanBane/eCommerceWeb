@@ -2,12 +2,12 @@
 
 public sealed record class Address
 {
-    public string Line1 { get; init; }
-    public string? Line2 { get; init; }
-    public string City { get; init; }
-    public string StateProvince { get; init; }
-    public string? ZipCode { get;  init; }
-    public string Country { get; init; }
+    public string Line1 { get; }
+    public string? Line2 { get; }
+    public string City { get; }
+    public string StateProvince { get; }
+    public string? ZipCode { get; }
+    public string Country { get; }
 
     public Address(string line1, string? line2, string city, string stateProvince, string? zipCode, string country)
     {
@@ -27,12 +27,12 @@ public sealed record class Address
         Line1 = line1;
         Line2 = line2;
         City = city;
+        StateProvince = stateProvince;
         ZipCode = zipCode;
         Country = country;
-        StateProvince = stateProvince;
     }
 
     #pragma warning disable CS8618
-    private Address() { } //EF Core
+    private Address() { } // EF Core
     #pragma warning restore CS8618
 }

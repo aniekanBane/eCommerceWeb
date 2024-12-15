@@ -5,11 +5,11 @@ namespace Ardalis.GuardClauses;
 
 public static class GaurdClauseExtensions
 {
-    public static void InvalidStringLength(
+    public static string InvalidStringLength(
         this IGuardClause gaurdClause, int lenght, [NotNull]string value,
         [CallerArgumentExpression(nameof(value))]string? paramName = null, string? message = null)
     {
-        gaurdClause.LengthOutOfRange(value, lenght, lenght, paramName, message);
+        return gaurdClause.LengthOutOfRange(value, lenght, lenght, paramName, message);
     }
 
     public static void NullOrDefault<T>(
