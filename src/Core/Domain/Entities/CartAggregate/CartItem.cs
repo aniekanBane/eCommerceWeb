@@ -5,19 +5,18 @@ namespace eCommerceWeb.Domain.Entities.CartAggregate;
 
 public sealed class CartItem : Entity<int>
 {   
-    #pragma warning disable CS8618
-    private CartItem() {} // EF Core
-
-    public CartItem(string productId, int quantity, Money unitPrice)
+    internal CartItem(string productId, Money unitPrice, int quantity)
     {
         ProductId = productId;
         UnitPrice = unitPrice;
         SetQuantity(quantity);
     }
 
-    public CartItem(string productId, int quantity, decimal unitPrice) 
-        : this(productId, quantity, Money.Of(unitPrice)) {}
+    #pragma warning disable CS8618
+    private CartItem() {} // EF Core
+    #pragma warning restore CS8618
 
+    public int CartId { get; private set; }
     public string ProductId { get; private set; }
     public int Quantity { get; private set; }
     public Money UnitPrice { get; private set; }

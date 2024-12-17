@@ -5,13 +5,12 @@ namespace eCommerceWeb.Domain.Entities.CartAggregate;
 
 public sealed class Cart : AuditableEntityWithDomainEvent<int>, IAggregateRoot
 {
-    private Cart() { } // EF Core
-
     public Cart(Guid customerId)
     {
-        Guard.Against.NullOrDefault(customerId, nameof(customerId));
-        CustomerId = customerId;
+        CustomerId = Guard.Against.Default(customerId, nameof(customerId));
     }
+
+    private Cart() { } // EF Core
 
     public Guid CustomerId { get; private set; } 
 
@@ -26,7 +25,7 @@ public sealed class Cart : AuditableEntityWithDomainEvent<int>, IAggregateRoot
 
         if (existingItem is null)
         {
-            _cartItems.Add(new(productId, quantity, Money.Of(unitPrice)));
+            _cartItems.Add(new(productId, Money.Of(unitPrice), quantity));
             return;
         }
 
