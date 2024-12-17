@@ -2,13 +2,13 @@
 
 namespace eCommerceWeb.Domain.Exceptions;
 
-public class DomainException : SystemException
+public class DomainException : Exception
 {
     public DomainException() : base() {}
 
     public DomainException(string message) : base(message) {}
 
-    public DomainException(string message, SystemException innerException) 
+    public DomainException(string message, Exception innerException) 
         : base(message, innerException) {}
 
     public DomainException(string message, params object[] args)
