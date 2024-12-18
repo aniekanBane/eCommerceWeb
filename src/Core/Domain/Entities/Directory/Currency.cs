@@ -1,12 +1,9 @@
-﻿using eCommerceWeb.Domain.Primitives.Entities;
+﻿namespace eCommerceWeb.Domain.Entities.Directory;
 
-namespace eCommerceWeb.Domain.Entities.Directory;
-
-public sealed class Currency : AuditableEntity<int>
+public sealed class Currency : DirectoryBase
 {
-    public Currency(string name, string code, string symbol)
+    public Currency(string name, string code, string symbol) : base(name)
     {
-        Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
         Code = Guard.Against.NullOrWhiteSpace(code, nameof(code));
         Symbol = Guard.Against.NullOrWhiteSpace(symbol, nameof(symbol));
     }
@@ -14,13 +11,6 @@ public sealed class Currency : AuditableEntity<int>
     #pragma warning disable CS8618
     private Currency() { } // EF Core
     #pragma warning restore CS8618
-
-    public string Name { get; private set; }
-    public string NormalisedName
-    {
-        get => Name.ToUpper();
-        private set { }
-    }
 
     public string Code { get; private set; }
 
