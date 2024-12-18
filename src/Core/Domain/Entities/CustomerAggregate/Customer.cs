@@ -5,9 +5,6 @@ namespace eCommerceWeb.Domain.Entities.CustomerAggregate;
 
 public sealed class Customer : AuditableEntity<Guid>, IAggregateRoot
 {
-    #pragma warning disable CS8618
-    private Customer() {} // EF Core
-
     public Customer(CustomerCreationModel creationModel)
     { 
         Name = new(creationModel.Firstname, creationModel.Lastname);
@@ -15,6 +12,10 @@ public sealed class Customer : AuditableEntity<Guid>, IAggregateRoot
         PhoneNumber = PhoneNumber.Of(creationModel.PhoneNumber);
         AcceptsMarketing = creationModel.AcceptsMarketing;
     }
+
+    #pragma warning disable CS8618
+    private Customer() { } // EF Core
+    #pragma warning restore CS8618
 
     public Name Name { get; private set; }
     public EmailAddress EmailAddress { get; private set; }
