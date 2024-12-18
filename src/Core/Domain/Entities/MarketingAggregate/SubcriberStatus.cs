@@ -21,7 +21,7 @@ public sealed record SubcriberStatus
     public static implicit operator string(SubcriberStatus status) => status.Value;
 
     public static SubcriberStatus Of(string value) => new(value);
-    public static List<string> ListNames() => SubcriberStatusEnum.List.Select(x => x.Name).ToList();
+    public static List<string> ListNames() => [.. SubcriberStatusEnum.List.Select(x => x.Name)];
 
     public static SubcriberStatus Cleaned() => new(SubcriberStatusEnum.Cleaned.Name);
     public static SubcriberStatus Subcribed() => new(SubcriberStatusEnum.Subcribed.Name);
