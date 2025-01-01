@@ -122,7 +122,7 @@ internal sealed class StoreDbContextInitializer(
                 using var stream = new MemoryStream(await DownloadFromUrlAsync(images[i]));
                 if (stream.Length != 0)
                 {
-                    var file = new MediaFile(stream.Length, "Image", $"IMG_{i:D4}.jpg", "image/jpg");
+                    var file = new MediaFile(FileType.Image(), $"IMG_{i:D4}.jpg", "image/jpg", stream.Length);
                     file.SetLocation(Path.Combine(file.FileType, $"{file.Id}"));
                     await storeDbContext.AddAsync(file, cancellationToken);
 

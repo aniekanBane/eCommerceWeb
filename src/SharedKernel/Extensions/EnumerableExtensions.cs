@@ -64,23 +64,6 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Chunks the collection into smaller collections of specified size.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the collection.</typeparam>
-    /// <param name="source">The source collection.</param>
-    /// <param name="chunkSize">The size of each chunk.</param>
-    /// <returns>A collection of chunks.</returns>
-    public static IEnumerable<IEnumerable<T>> Chunk<T>(
-        this IEnumerable<T> source,
-        int chunkSize)
-    {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(chunkSize);
-
-        return ChunkIterator(source, chunkSize);
-    }
-
-    /// <summary>
     /// Determines whether the collection is null or empty.
     /// </summary>
     public static bool IsNullOrEmpty<T>(this IEnumerable<T>? source)

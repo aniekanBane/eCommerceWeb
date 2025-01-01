@@ -70,21 +70,6 @@ public class EnumerableExtensionsTests
     }
 
     [Fact]
-    public void Chunk_ShouldCreateEqualSizedChunks()
-    {
-        // Arrange
-        var list = Enumerable.Range(1, 10);
-
-        // Act
-        var result = list.Chunk(3).ToList();
-
-        // Assert
-        result.Should().HaveCount(4);
-        result.Take(3).Should().AllSatisfy(chunk => chunk.Should().HaveCount(3));
-        result.Last().Should().HaveCount(1);
-    }
-
-    [Fact]
     public void IsNullOrEmpty_WithNullCollection_ShouldReturnTrue()
     {
         // Arrange

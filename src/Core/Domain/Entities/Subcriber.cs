@@ -12,8 +12,6 @@ public sealed class Subcriber : AuditableEntityWithDomainEvent<int>, IAggregateR
         Name = new(creationModel.Firstname, creationModel.Lastname);
         EmailAddress = EmailAddress.Of(creationModel.EmailAddress);
         AcceptsMarketing = creationModel.AcceptsMarketing;
-
-        RaiseDomainEvent(new SubcribedEvent(this));
     }
 
     #pragma warning disable CS8618

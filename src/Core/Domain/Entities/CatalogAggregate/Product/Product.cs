@@ -8,25 +8,25 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
     #region properties
 
     /* Details */
-    public string Name { get; private set; }
-    public string NormalisedName { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string NormalizedName { get; private set; } = string.Empty;
     public string? Description { get; private set; }
-    public string Sku { get; private set; }
-    public string NormalisedSku { get; private set; }
+    public string Sku { get; private set; } = string.Empty;
+    public string NormalizedSku { get; private set; } = string.Empty;
 
     /* Images */
     public string? ThumbnailUri
     { 
         get => Images.FirstOrDefault(i => i.IsThumbnail)?.Uri; 
-        private set {} 
+        private set { } 
     }
     private readonly List<ProductImage> _images = [];
     public IReadOnlyCollection<ProductImage> Images => _images.AsReadOnly();
 
     /* Price */
     public bool OnSale { get; private set; }
-    public Money UnitPrice { get; private set; }
-    public Money SalePrice { get; private set; }
+    public Money UnitPrice { get; private set; } = Money.Zero;
+    public Money SalePrice { get; private set; } = Money.Zero;
 
     /* Stock */
     public int? StockQuantity { get; private set; }
@@ -56,7 +56,8 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
     #region constructors
 
     #pragma warning disable CS8618
-    private Product() {} // EF Core
+    private Product() { } // EF Core
+    #pragma warning restore CS8618
 
     public Product(ProductCreationModel creationModel)
     {
@@ -80,28 +81,25 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
 
     #region methods
 
-    public Product AddCategory(Category category)
+    public void AddCategory(Category category)
     {
         _categories.Add(category);
-        return this;
     }
 
-    public Product AddImage(ProductImage image)
+    public void AddImage(ProductImage image)
     {
         _images.Add(image);
-        return this;
     }
 
-    public Product AddRelatedProduct(Product product)
+    public void AddRelatedProduct(Product product)
     {
+        Guard.Against.InvalidInput(product, nameof(product), p => p == this);
         _relatedProducts.Add(product);
-        return this;
     }
 
-    public Product AddTag(ProductTag tag)
+    public void AddTag(ProductTag tag)
     {
         _tags.Add(tag);
-        return this;
     }
 
     public Product SetName(string name)
@@ -110,6 +108,7 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
         Guard.Against.StringTooLong(name, DomainModelConstants.PRODUCT_NAME_MAX_LENGTH, nameof(name));
         
         Name = name;
+        NormalizedName = name.Trim().ToUpperInvariant();
         return this;
     }
 
@@ -118,8 +117,7 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
         Visibility = Visibility.Of(visibility);
         if (visibility == Visibility.Scheduled())
         {
-            Guard.Against.NullOrDefault(publishOn, nameof(publishOn));
-            PublishOn = publishOn;
+            PublishOn = Guard.Against.Default(publishOn, nameof(publishOn));
         }
         return this;
     }
@@ -156,7 +154,6 @@ public sealed class Product : AuditableEntityWithDomainEvent<string>, IAggregate
     private void SetPrice(bool onSale, decimal unitPrice, decimal salePrice)
     {
         UnitPrice = Money.Of(Guard.Against.Negative(unitPrice, nameof(unitPrice)));
-        SalePrice = Money.Zero;
 
         if (onSale)
         {

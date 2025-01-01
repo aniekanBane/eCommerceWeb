@@ -4,15 +4,10 @@ public sealed record class ProductOrdered
 {
     public ProductOrdered(string productId, string productSku, string productName, string productImageUri)
     {
-        Guard.Against.NullOrWhiteSpace(productId, nameof(productId));
-        Guard.Against.NullOrWhiteSpace(productName, nameof(productName));
-        Guard.Against.NullOrWhiteSpace(productSku, nameof(productSku));
-        Guard.Against.NullOrWhiteSpace(productImageUri, nameof(productImageUri));
-
-        ProductId = productId;
-        ProductSku = productSku;
-        ProductName = productName;
-        ProductImageUri = productImageUri;
+        ProductId = Guard.Against.NullOrWhiteSpace(productId, nameof(productId));
+        ProductSku = Guard.Against.NullOrWhiteSpace(productSku, nameof(productSku));
+        ProductName = Guard.Against.NullOrWhiteSpace(productName, nameof(productName));
+        ProductImageUri = Guard.Against.NullOrWhiteSpace(productImageUri, nameof(productImageUri));
     }
 
     #pragma warning disable CS8618

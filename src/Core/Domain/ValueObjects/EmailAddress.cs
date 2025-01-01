@@ -7,7 +7,12 @@ public sealed record class EmailAddress
     public EmailAddress(string value)
     {
         Guard.Against.NullOrWhiteSpace(value, nameof(value));
-        Guard.Against.InvalidFormat(value, nameof(value), DomainModelConstants.EMAIL_REGEX);
+        Guard.Against.InvalidFormat(
+            value, 
+            nameof(value), 
+            DomainModelConstants.EMAIL_REGEX,
+            ErrorMessages.ValueObjects.INVALID_EMAIL_ADDRESS
+        );
         Value = value;
     }
 

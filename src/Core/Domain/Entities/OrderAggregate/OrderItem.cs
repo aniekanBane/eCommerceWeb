@@ -5,20 +5,23 @@ namespace eCommerceWeb.Domain.Entities.OrderAggregate;
 
 public sealed class OrderItem : Entity<int>
 {
-    #pragma warning disable CS8618
-    private OrderItem() {}
-
-    public OrderItem(int quantity, Money unitPrice, ProductOrdered productOrdered)
+    internal OrderItem(ProductOrdered productOrdered, Money unitPrice, int quantity )
     {
         ProductOrdered = productOrdered;
         UnitPrice = unitPrice;
-        Quantity = quantity;
+        Quantity = Guard.Against.NegativeOrZero(quantity, nameof(quantity));
     }
 
-    public OrderItem(int quantity, decimal unitPrice, ProductOrdered productOrdered) 
-        : this(quantity, Money.Of(unitPrice), productOrdered) {}
+    #pragma warning disable CS8618
+    private OrderItem() { } // EF Core
+    #pragma warning restore CS8618
 
     public int Quantity { get; private set; }
     public Money UnitPrice { get; private set; }
     public ProductOrdered ProductOrdered { get; private set; }
+
+    public void AddQuantity(int quantity)
+    {
+        Quantity += Guard.Against.Negative(quantity, nameof(quantity)); 
+    }
 }

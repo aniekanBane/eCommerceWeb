@@ -5,7 +5,7 @@ namespace eCommerceWeb.Domain.Entities;
 public abstract class Tag : Entity<int>
 {
     public string Name { get; private set; }
-    public string NormalisedName { get; private set; }
+    public string NormalizedName { get; private set; }
 
     protected Tag(string name) : this()
     {
@@ -17,4 +17,5 @@ public abstract class Tag : Entity<int>
 
     #pragma warning disable CS8618
     protected Tag() { }
+    #pragma warning restore CS8618
 }

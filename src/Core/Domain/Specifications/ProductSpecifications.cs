@@ -15,7 +15,7 @@ public class ProductNameSpec : Specification<Product>
 {
     public ProductNameSpec(string name)
     {
-        Query.Where(p => p.NormalisedName == name.ToUpper());
+        Query.Where(p => p.NormalizedName == name.ToUpper());
     }
 }
 
@@ -23,7 +23,7 @@ public class ProductSkuSpec : Specification<Product>
 {
     public ProductSkuSpec(string sku)
     {
-        Query.Where(p => p.NormalisedSku == sku.ToUpper());        
+        Query.Where(p => p.NormalizedSku == sku.ToUpper());        
     }
 }
 
@@ -35,9 +35,9 @@ public class ProductFilterSpec : Specification<Product>
         {
             filter = filter.ToUpper();
             Query.AsNoTracking().Include(p => p.Categories)
-                .Where(p => p.NormalisedName.Contains(filter)
-                || p.Tags.Any(t => t.NormalisedName.Contains(filter))
-                || p.Categories.Any(c => c.NormalisedName.Contains(filter)))
+                .Where(p => p.NormalizedName.Contains(filter)
+                || p.Tags.Any(t => t.NormalizedName.Contains(filter))
+                || p.Categories.Any(c => c.NormalizedName.Contains(filter)))
                 .OrderBy(p => p.Name);
         }
     }

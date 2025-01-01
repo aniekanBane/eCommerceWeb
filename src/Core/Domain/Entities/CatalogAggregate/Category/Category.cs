@@ -7,23 +7,22 @@ public sealed class Category : AuditableEntity<int>, IAggregateRoot
 {
     #pragma warning disable CS8618
     private Category() { } // EF Core
+    #pragma warning restore CS8618
 
     public Category(CategoryCreationModel creationModel) 
     {
         SetName(creationModel.Name);
         Seo = new(creationModel.UrlSlug);
+        IsEnabled = true;
+        IsVisible = true;
     }
 
     /* Details */
-    public string Name { get; private set; }
-    public string NormalisedName { get; private set; }
+    public string Name { get; private set; } = string.Empty;
+    public string NormalizedName { get; private set; } = string.Empty;
 
     /* Organization */
-    public bool IsParentCategory 
-    { 
-        get => ParentCategoryId is null; 
-        private set {} 
-    }
+    public bool IsParentCategory => ParentCategoryId is null; 
     public int? ParentCategoryId { get; private set; }
     private readonly List<Category> _subCategories  = [];
     public IReadOnlyCollection<Category> SubCategories => _subCategories.AsReadOnly();
@@ -33,12 +32,10 @@ public sealed class Category : AuditableEntity<int>, IAggregateRoot
     public bool IsEnabled { get; private set; }
     public bool IsVisible { get; private set; }
 
-    public Category AddSubCategory(Category category)
+    public void AddSubCategory(Category category)
     {
         if (IsParentCategory || SubCategories.Count == 0)
             _subCategories.Add(category);
-            
-        return this;
     }
 
     public Category Update(CategoryUpdateModel updateModel)
@@ -60,6 +57,8 @@ public sealed class Category : AuditableEntity<int>, IAggregateRoot
     {
         Guard.Against.NullOrWhiteSpace(name, nameof(name));
         Guard.Against.StringTooLong(name, DomainModelConstants.CATEGORY_NAME_MAX_LENGTH, nameof(name));
+
         Name = name;
+        NormalizedName = name.Trim().ToUpperInvariant();
     }
 }

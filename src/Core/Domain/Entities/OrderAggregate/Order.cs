@@ -1,5 +1,4 @@
 ﻿using eCommerceWeb.Domain.Events;
-using eCommerceWeb.Domain.Exceptions;
 using eCommerceWeb.Domain.Primitives.Entities;
 using eCommerceWeb.Domain.ValueObjects;
 
@@ -9,11 +8,10 @@ public sealed class Order : AuditableEntityWithDomainEvent<Guid>, IAggregateRoot
 {   
     #pragma warning disable CS8618
     private Order() { } // EF Core
+    #pragma warning restore CS8618
 
     public Order(Guid customerId, Address billingAddress, Address deliveryAddress) 
-    {
-        Guard.Against.NullOrDefault(customerId, nameof(customerId));
-        
+    {   
         Id = Guid.NewGuid();
         CustomerId = customerId;
         BillingAddress = billingAddress;
@@ -23,84 +21,70 @@ public sealed class Order : AuditableEntityWithDomainEvent<Guid>, IAggregateRoot
     }
 
     public Guid CustomerId { get; private set; }
-    public int OrderNo { get; private set; }
-    public string? Note { get; private set; }
+    public string OrderNo { get; private set; } = string.Empty;
     public OrderStatus OrderStatus { get; private set; }
     public PaymentStatus PaymentStatus { get; private set; }
     public Address BillingAddress { get; private set; }
     public Address DeliveryAddress { get; private set; }
+    public string? Note { get; private set; }
 
     private readonly List<OrderItem> _orderItems = [];
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
 
-    public Order AddItems(IEnumerable<OrderItem> orderItems) 
+    public void AddItem(ProductOrdered productOrdered, Money unitPrice, int quantity = 1) 
     { 
-        _orderItems.AddRange(orderItems);
-        return this;
+        var existingItem = _orderItems.SingleOrDefault(i => i.ProductOrdered.ProductId == productOrdered.ProductId);
+        if (existingItem is null)
+        {
+            var orderItem = new OrderItem(productOrdered, unitPrice, quantity);
+            _orderItems.Add(orderItem);
+            return;
+        }
+        else
+        {
+            existingItem.AddQuantity(quantity);
+        }
+
     }
 
-    public decimal GetTotal() => 
-        _orderItems.Sum(x => x.Quantity * x.UnitPrice.Amount);
+    public decimal GetTotal() => _orderItems.Sum(x => x.Quantity * x.UnitPrice.Amount);
 
     public void SetFulfilledStatus()
     {
-        if (!OrderStatus.MoveTo(OrderStatus.Fulfilled()))
-        {
-            OrderStatusException(OrderStatus.Fulfilled());
-        }
-
-        Note = "Order shipped.";
+        OrderStatus = OrderStatus.MoveTo(OrderStatus.Fulfilled());
         RaiseDomainEvent(new OrderFulfilledEvent(this));
+        Note = "Order has been shipped.";
     }
 
     public void SetCancelledStatus()
     {
-        if (!OrderStatus.MoveTo(OrderStatus.Cancelled()))
-        {
-            OrderStatusException(OrderStatus.Cancelled());
-        }
-
-        Note = "Order cancelled.";
+        OrderStatus = OrderStatus.MoveTo(OrderStatus.Cancelled());
         RaiseDomainEvent(new OrderCancelledEvent(this));
+        Note = "Order has been cancelled.";
     }
 
-    public void SetFailedStatus()
+    public void SetPaymentFailedStatus()
     {
-        if (!PaymentStatus.MoveTo(PaymentStatus.Failed()))
-        {
-            PaymentStatusException(PaymentStatus.Failed());
-        }
-
+        PaymentStatus = PaymentStatus.MoveTo(PaymentStatus.Failed());
         SetCancelledStatus();
+        Note = "Payment failed.";
     }
 
-    public void SetPaidStatus()
+    public void SetPaymentPaidStatus()
     {
         Guard.Against.InvalidInput(OrderStatus, nameof(OrderStatus), os => os == OrderStatus.Pending());
-        if (!PaymentStatus.MoveTo(PaymentStatus.Paid()))
-        {
-            PaymentStatusException(PaymentStatus.Paid());
-        }
-
-        Note = "Order paid.";
+        
+        PaymentStatus = PaymentStatus.MoveTo(PaymentStatus.Paid());
         RaiseDomainEvent(new OrderPaidEvent(this));
+        Note = "Order has been paid.";
     }
 
     public void SetRefundedStatus()
     {
         Guard.Against.InvalidInput(OrderStatus, nameof(OrderStatus), os => os != OrderStatus.Cancelled());
-        if (!PaymentStatus.MoveTo(PaymentStatus.Refunded()))
-        {
-            PaymentStatusException(PaymentStatus.Refunded());
-        }
 
-        Note = "Order marked for refund.";
+        PaymentStatus = PaymentStatus.MoveTo(PaymentStatus.Refunded());
         RaiseDomainEvent(new PaymentRefundedEvent(this, Money.Of(GetTotal())));
+        Note = "Order marked for refund.";
     }
-
-    private void PaymentStatusException(PaymentStatus status) =>
-        throw new DomainException("Invalid payment status change attempt from {0} to {1}", PaymentStatus, status);
-
-    private void OrderStatusException(OrderStatus status) =>
-        throw new DomainException("Invalid order status change attempt from {0} to {1}", OrderStatus, status);
 }

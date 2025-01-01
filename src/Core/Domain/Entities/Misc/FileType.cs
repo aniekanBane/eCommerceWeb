@@ -5,15 +5,26 @@ namespace eCommerceWeb.Domain.Entities.Misc;
 public sealed record class FileType
 {
     private FileTypeEnum _type = null!;
-    public string Value 
-    {
-        get => _type.Name;
-        private init { _type = Parse(value); }
-    }
+
+    private FileType() { } // EF Core
 
     public FileType(string value)
     {
-        Value = value;
+        Value = Guard.Against.NullOrWhiteSpace(value);
+    }
+
+    public string Value 
+    {
+        get => _type.Name;
+        private init 
+        { 
+            Guard.Against.InvalidInput(
+                value, 
+                nameof(value),
+                predicate: x => FileTypeEnum.TryFromName(x, true, out _type),
+                ErrorMessages.FileEntry.InvalidFileType
+            );
+        }
     }
 
     public string AllowedExtensions() => _type.AllowedExtensions;
@@ -21,21 +32,11 @@ public sealed record class FileType
     public static implicit operator string(FileType fileType) => fileType.Value;
 
     public static FileType Of(string value) => new(value);
-    public static List<string> ListNames() => FileTypeEnum.List.Select(x => x.Name).ToList();
+    public static List<string> ListNames() => [.. FileTypeEnum.List.Select(x => x.Name)];
 
     public static FileType Document() => new(FileTypeEnum.Document.Name);
     public static FileType Image() => new(FileTypeEnum.Image.Name);
     public static FileType Video() => new(FileTypeEnum.Video.Name);
-
-    private static FileTypeEnum Parse(string value)
-    {
-        Guard.Against.NullOrWhiteSpace(value, nameof(value));
-        var success = FileTypeEnum.TryFromName(value, true, out var result);
-        Guard.Against.Expression(x => !x, success, ErrorMessages.FileEntry.InvalidFileType);
-        return result;
-    }
-
-    private FileType() { } // EF Core
 
     private abstract class FileTypeEnum(string name, ushort value) 
         : SmartEnum<FileTypeEnum, ushort>(name, value)

@@ -2,11 +2,9 @@
 
 namespace eCommerceWeb.Domain.Entities.MarketingAggregate;
 
-public sealed class MailingListSubcriber : Entity<int>
+public sealed class MailingListSubcriber : IEntity
 {
-    internal MailingListSubcriber(
-        int subcriberId, 
-        int mailingListId)
+    internal MailingListSubcriber(int subcriberId, int mailingListId)
     {
         SubcriberId = subcriberId;
         MailingListId = mailingListId;
@@ -16,5 +14,5 @@ public sealed class MailingListSubcriber : Entity<int>
 
     public int SubcriberId { get; private set; }
     public int MailingListId { get; private set; }
-    public SubcriberStatus SubcriberStatus { get; private set; } = SubcriberStatus.Subcribed();
+    public DateTime SubcribedOnUtc { get; private set; }
 }
