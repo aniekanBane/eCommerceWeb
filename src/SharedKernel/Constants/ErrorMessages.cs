@@ -42,4 +42,10 @@ public static class ErrorMessages
         public const string InvalidPaymentStatus = "Invalid payment status.";
         public const string NoCarrier = "Carrier not specified.";
     }
+
+    public static class ValueObjects
+    {
+        public const string INVALID_EMAIL_ADDRESS = "Invalid email address.";
+        public const string INVALID_PHONE_NUMBER = "Invalid phone number.";
+    }
 }

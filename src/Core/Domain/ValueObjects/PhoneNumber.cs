@@ -7,7 +7,12 @@ public sealed record class PhoneNumber
     public PhoneNumber(string number)
     {
         Guard.Against.NullOrWhiteSpace(number, nameof(number));
-        Guard.Against.InvalidFormat(number, nameof(number), DomainModelConstants.PHONE_NUMBER_REGEX);
+        Guard.Against.InvalidFormat(
+            number, 
+            nameof(number), 
+            DomainModelConstants.PHONE_NUMBER_REGEX,
+            ErrorMessages.ValueObjects.INVALID_PHONE_NUMBER
+        );
         Number = NormalizeNumber(number);
     }
 
