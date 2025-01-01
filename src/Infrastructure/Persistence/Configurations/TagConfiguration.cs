@@ -8,10 +8,14 @@ internal sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
 {
     public void Configure(EntityTypeBuilder<Tag> builder)
     {
+        builder.HasKey(t => t.Id);
+        
         builder.Property(t => t.Name)
             .HasMaxLength(DomainModelConstants.TAG_NAME_MAX_LENGTH);
 
-        builder.Property(t => t.NormalisedName).HasComputedColumnSql("UPPER(name)", true);
-        builder.HasIndex(t => t.NormalisedName);
+        builder.Property(t => t.NormalizedName).HasComputedColumnSql("UPPER(name)", true);
+        builder.HasIndex(t => t.NormalizedName);
+
+        builder.HasDiscriminator();
     }
 }

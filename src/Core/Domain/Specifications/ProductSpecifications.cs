@@ -36,7 +36,7 @@ public class ProductFilterSpec : Specification<Product>
             filter = filter.ToUpper();
             Query.AsNoTracking().Include(p => p.Categories)
                 .Where(p => p.NormalizedName.Contains(filter)
-                || p.Tags.Any(t => t.NormalisedName.Contains(filter))
+                || p.Tags.Any(t => t.NormalizedName.Contains(filter))
                 || p.Categories.Any(c => c.NormalizedName.Contains(filter)))
                 .OrderBy(p => p.Name);
         }
