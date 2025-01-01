@@ -17,15 +17,16 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Name)
             .HasMaxLength(DomainModelConstants.PRODUCT_NAME_MAX_LENGTH);
 
-        builder.Property(p => p.NormalisedName).HasComputedColumnSql("UPPER(name)", true);
-        builder.HasIndex(p => p.NormalisedName).IsUnique();
+        builder.HasIndex(p => p.NormalizedName) 
+            .IsUnique()
+            .IncludeProperties(p => new { p.Name });
 
         builder.Property(p => p.Sku)
             .HasMaxLength(DomainModelConstants.PRODUCT_SKU_LENGTH)
             .IsFixedLength();
 
-        builder.Property(p => p.NormalisedSku).HasComputedColumnSql("UPPER(sku)", true);
-        builder.HasIndex(p => p.NormalisedSku).IsUnique();
+        builder.Property(p => p.NormalizedSku).HasComputedColumnSql("UPPER(sku)", true);
+        builder.HasIndex(p => p.NormalizedSku).IsUnique();
 
         builder.Property(p => p.Description).HasMaxLength(DomainModelConstants.PRODUCT_DESC_MAX_LENGTH);
 
@@ -61,14 +62,14 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.ToTable(b =>
         {
             b.HasCheckConstraint("ck_visibility", $"visibility IN ('{string.Join("', '", Visibility.ListNames())}')");
-            b.HasCheckConstraint("ck_publish_on", $"visibility <> '{Visibility.Scheduled().Value}' OR publish_on IS NOT NULL");
-            b.HasCheckConstraint("ck_unit_price_value", "unit_price >= 0");
+            b.HasCheckConstraint("ck_publish_on", $"visibility <> '{Visibility.Scheduled()}' OR publish_on IS NOT NULL");
+            b.HasCheckConstraint("ck_unit_price", "unit_price >= 0");
             b.HasCheckConstraint(
-                "ck_stock", 
+                "ck_stock_quantity", 
                 "(has_unlimited_stock = FALSE AND stock_quantity >= 0) OR (has_unlimited_stock AND stock_quantity IS NULL)"
             );
             b.HasCheckConstraint(
-                "ck_price", 
+                "ck_sale_price", 
                 "(on_sale = TRUE AND sale_price > 0 AND sale_price < unit_price) OR (on_sale = FALSE AND sale_price = 0)"
             );
         });

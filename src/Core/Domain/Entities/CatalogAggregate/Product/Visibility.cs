@@ -5,35 +5,33 @@ namespace eCommerceWeb.Domain.Entities.CatalogAggregate;
 public sealed record class Visibility
 {
     private VisibilityEnum _visibility = null!;
-    public string Value 
-    { 
-        get => _visibility.Name; 
-        private set => _visibility = Parse(value); 
-    }
 
     public Visibility(string value)
     {
         Value = value;
     }
 
+    private Visibility() { } // EF Core
+
+    public string Value 
+    { 
+        get => _visibility.Name; 
+        private set => Guard.Against.InvalidInput(
+            value, 
+            nameof(value),
+            x => VisibilityEnum.TryFromName(x, true, out _visibility),
+            ErrorMessages.Product.InvalidVisibility
+        );
+    }
+
     public static implicit operator string(Visibility value) => value.Value;
 
     public static Visibility Of(string value) => new(value);
-    public static List<string> ListNames() => VisibilityEnum.List.Select(e => e.Name).ToList();
+    public static List<string> ListNames() => [.. VisibilityEnum.List.Select(e => e.Name)];
 
     public static Visibility Hidden() => new(VisibilityEnum.Hidden.Name);
     public static Visibility Public() => new(VisibilityEnum.Public.Name);
     public static Visibility Scheduled() => new(VisibilityEnum.Scheduled.Name);
-
-    private static VisibilityEnum Parse(string value)
-    {
-        Guard.Against.NullOrWhiteSpace(value, nameof(value));
-        var success = VisibilityEnum.TryFromName(value, true, out var result);
-        Guard.Against.Expression(x => !x, success, ErrorMessages.Product.InvalidVisibility);
-        return result;
-    }
-
-    private Visibility() {} // EF Core
 
     private abstract class VisibilityEnum(string name, ushort value) 
         : SmartEnum<VisibilityEnum, ushort>(name, value)

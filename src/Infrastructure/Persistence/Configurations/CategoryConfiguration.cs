@@ -13,11 +13,9 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Name)
             .HasMaxLength(DomainModelConstants.CATEGORY_NAME_MAX_LENGTH);
 
-        builder.Property(c => c.NormalisedName).HasComputedColumnSql("UPPER(name)", true);
-        builder.HasIndex(c => c.NormalisedName).IsUnique();
-
-        builder.Property(c => c.IsEnabled).HasDefaultValue(true);
-        builder.Property(c => c.IsVisible).HasDefaultValue(true);
+        builder.HasIndex(c => c.NormalizedName)
+            .IsUnique()
+            .IncludeProperties(c => new { c.Name });
 
         builder.ComplexProperty(c => c.Seo, ComplexObjectConfiguration.ConfigureSeo);
 
