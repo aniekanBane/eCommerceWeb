@@ -106,5 +106,4 @@ internal abstract class Repository<TEntity, TDbContext>(TDbContext dbContext)
     }
 
     #endregion
-
 }

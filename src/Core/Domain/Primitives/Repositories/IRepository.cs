@@ -4,7 +4,7 @@ using eCommerceWeb.Domain.Primitives.Entities;
 
 namespace eCommerceWeb.Domain.Primitives.Repositories;
 
-public interface IRepository<TEntity> : IRepositoryBase<TEntity> 
+public interface IRepository<TEntity> : IReadRepository<TEntity>, IRepositoryBase<TEntity> 
     where TEntity : class, IEntity, IAggregateRoot
 {
     Task<int> ExecuteDeleteAsync(
