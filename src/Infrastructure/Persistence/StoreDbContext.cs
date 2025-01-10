@@ -2,6 +2,7 @@
 using eCommerceWeb.Domain.Primitives.Entities;
 using eCommerceWeb.Domain.Primitives.Repositories;
 using eCommerceWeb.Domain.ValueObjects;
+using eCommerceWeb.Persistence.Configurations;
 using eCommerceWeb.Persistence.Converters;
 using eCommerceWeb.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -92,7 +93,10 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreDbContext).Assembly);
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        modelBuilder.ApplyConfiguration(new TagConfiguration());
+        
         modelBuilder.ApplyGlobalFilter<ISoftDeleteEntity>(e => !e.IsDeleted);
     }
 
