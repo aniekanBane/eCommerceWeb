@@ -28,14 +28,6 @@ public sealed class Country : DirectoryBase
     /// </summary>
     public string Ccn3 { get; private set; }
 
-    public bool ShippingEnabled { get; private set; }
-
     private readonly List<StateProvince> _stateProvinces = [];
     public IReadOnlyCollection<StateProvince> StateProvinces => _stateProvinces.AsReadOnly();
-
-    public Country ToggleShipping(bool value)
-    {
-        ShippingEnabled = value;
-        return this;
-    }
 }

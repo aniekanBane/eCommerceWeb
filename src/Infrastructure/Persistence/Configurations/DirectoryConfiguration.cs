@@ -14,9 +14,6 @@ internal sealed class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
             .IncludeProperties(c => new { c.Name });
 
         builder.HasIndex(c => c.Code).IsUnique();
-
-        builder.Property(c => c.HasUniqueSymbol)
-            .ValueGeneratedOnAddOrUpdate();
     }
 }
 

@@ -3,6 +3,7 @@ using eCommerceWeb.Domain.Primitives.Entities;
 using eCommerceWeb.Domain.Primitives.Repositories;
 using eCommerceWeb.Domain.ValueObjects;
 using eCommerceWeb.Persistence.Configurations;
+using eCommerceWeb.Persistence.Conventions;
 using eCommerceWeb.Persistence.Converters;
 using eCommerceWeb.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -76,6 +77,8 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options)
     {
         base.ConfigureConventions(configurationBuilder);
 
+        configurationBuilder.Conventions.Add(_ => new DirectoryConvention());
+
         configurationBuilder.Properties<EmailAddress>()
             .HaveConversion<EmailAddressConverter>();
 
@@ -93,9 +96,14 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options)
     {
         base.OnModelCreating(modelBuilder);
 
+        // Catalog
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ProductConfiguration());
         modelBuilder.ApplyConfiguration(new TagConfiguration());
+
+        // Directory
+        modelBuilder.ApplyConfiguration(new CountryConfiguration());
+        modelBuilder.ApplyConfiguration(new CurrencyConfiguration());
         
         modelBuilder.ApplyGlobalFilter<ISoftDeleteEntity>(e => !e.IsDeleted);
     }
