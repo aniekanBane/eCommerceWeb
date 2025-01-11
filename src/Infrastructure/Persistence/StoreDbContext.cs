@@ -101,6 +101,9 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options)
         modelBuilder.ApplyConfiguration(new ProductConfiguration());
         modelBuilder.ApplyConfiguration(new TagConfiguration());
 
+        // Misc
+        modelBuilder.ApplyConfiguration(new MediaFileConfiguration());
+
         // Directory
         modelBuilder.ApplyConfiguration(new CountryConfiguration());
         modelBuilder.ApplyConfiguration(new CurrencyConfiguration());
