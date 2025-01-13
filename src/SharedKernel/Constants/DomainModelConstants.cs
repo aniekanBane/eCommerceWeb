@@ -9,7 +9,7 @@ public static class DomainModelConstants
     public const int SEO_TITLE_MAX_LENGTH = 100; 
     public const int SEO_DESC_MAX_LENGTH = 400;
     public const int SEO_KEYWORDS_MAX_LENGTH = 256;
-    public const int SEO_IMAGE_ALT_MAX_LENGTH = 125;
+    public const int SEO_IMAGE_ALT_MAX_LENGTH = 64;
     public const int SEO_IMAGE_DESC_MAX_LENGTH = 250;
     public const string SEO_URL_SLUG_REGEX = @"^[a-z0-9]+(?:(?:-|\/)[a-z0-9]+)*$";
     #endregion
