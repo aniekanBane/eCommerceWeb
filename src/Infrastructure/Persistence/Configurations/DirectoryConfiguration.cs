@@ -29,7 +29,6 @@ internal sealed class CountryConfiguration : IEntityTypeConfiguration<Country>
 
         builder.HasIndex(c => c.Cca2).IsUnique();
         builder.HasIndex(c => c.Cca3).IsUnique();
-        builder.HasIndex(c => c.Ccn3).IsUnique();
 
         /***** Relationships *****/
 

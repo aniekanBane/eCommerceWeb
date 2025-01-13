@@ -1,6 +1,8 @@
-﻿using Bogus;
+﻿using System.Text.Json;
+using Bogus;
 using eCommerceWeb.Application.Abstractions.Database;
 using eCommerceWeb.Domain.Entities.CatalogAggregate;
+using eCommerceWeb.Domain.Entities.Directory;
 using eCommerceWeb.Domain.Entities.Misc;
 using eCommerceWeb.Domain.Primitives.Storage;
 using Microsoft.Extensions.Logging;
@@ -8,7 +10,7 @@ using SharedKernel.Utilities;
 
 namespace eCommerceWeb.Persistence;
 
-internal sealed class StoreDbContextInitializer(
+internal sealed partial class StoreDbContextInitializer(
     StoreDbContext storeDbContext,
     IFileStorageManger fileStorageManger,
     ILogger<StoreDbContextInitializer> logger) : IDatabaseInitializer
@@ -40,7 +42,8 @@ internal sealed class StoreDbContextInitializer(
             using var tx = await storeDbContext.Database.BeginTransactionAsync(cancellationToken);
 
             //await DbCleanUpAsync(cancellationToken);
-            await SeedProduct(cancellationToken);
+            await SeedDirectory(cancellationToken);
+            // await SeedProduct(cancellationToken);
 
             await storeDbContext.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
@@ -140,6 +143,63 @@ internal sealed class StoreDbContextInitializer(
                 var uri = new Uri(url).GetLeftPart(UriPartial.Path);
                 return await client.GetByteArrayAsync(uri, cancellationToken);
             }
+        }
+    }
+}
+
+internal partial class StoreDbContextInitializer
+{
+    private static readonly List<Currency> currencies = [
+        new("US Dollar", "USD", "$"),
+        new("British Pound", "GBP", "£"),
+        new("Euro", "EUR", "€"),
+        new("Swiss Franc", "CHF", "Fr."),
+        new("Canadian Dollar", "CAD", "$"),
+        new("Australian Dollar", "AUD", "$"),
+        new("Indian Rupee", "INR", "₹"),
+        new("Nigerian Naira", "NGN", "₦"),
+        new("Mexican Peso", "MXN", "$"),
+        new("Japanese Yen", "JPY", "¥"),
+        new("South African Rand", "ZAR", "R"),
+    ];
+
+    private async Task SeedDirectory(CancellationToken cancellationToken)
+    {
+        await SeedCountry();
+        await SeedCurrency();
+
+        async Task SeedCurrency()
+        {
+            var currencyContext = storeDbContext.Set<Currency>();
+            if (await currencyContext.AnyAsync(cancellationToken)) return;
+
+            await currencyContext.AddRangeAsync(currencies, cancellationToken);
+        }
+
+        async Task SeedCountry()
+        {
+            var countryContext = storeDbContext.Set<Country>();
+            if (await countryContext.AnyAsync(cancellationToken)) return;
+
+            const string targetDir = "static";
+            if (!DirectoryHelper.TryGetDirectoryInfo(targetDir, out var directory))
+            {
+                return;
+            }
+
+            string path = Path.Combine(directory!.FullName, targetDir, "json", "countries.json");
+            var text = await File.ReadAllTextAsync(path, cancellationToken);
+            var countries = JsonSerializer.Deserialize<List<Country>>(
+                text, 
+                options: new() 
+                { 
+                    PropertyNameCaseInsensitive = true,
+                }
+            )!;
+
+            countries.RemoveAll(c => c.Cca2 == "CC" || c.Cca2 == "VA");
+
+            await countryContext.AddRangeAsync(countries, cancellationToken);
         }
     }
 }
