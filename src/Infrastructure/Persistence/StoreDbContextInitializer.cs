@@ -4,7 +4,6 @@ using eCommerceWeb.Application.Abstractions.Database;
 using eCommerceWeb.Domain.Entities.CatalogAggregate;
 using eCommerceWeb.Domain.Entities.Directory;
 using eCommerceWeb.Domain.Entities.Misc;
-using eCommerceWeb.Domain.Primitives.Storage;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Utilities;
 
@@ -12,7 +11,6 @@ namespace eCommerceWeb.Persistence;
 
 internal sealed partial class StoreDbContextInitializer(
     StoreDbContext storeDbContext,
-    IFileStorageManger fileStorageManger,
     ILogger<StoreDbContextInitializer> logger) : IDatabaseInitializer
 {
     private static readonly Faker _faker = new();
@@ -43,7 +41,7 @@ internal sealed partial class StoreDbContextInitializer(
 
             //await DbCleanUpAsync(cancellationToken);
             await SeedDirectory(cancellationToken);
-            // await SeedProduct(cancellationToken);
+            await SeedProduct(cancellationToken);
 
             await storeDbContext.SaveChangesAsync(cancellationToken);
             await tx.CommitAsync(cancellationToken);
@@ -67,86 +65,98 @@ internal sealed partial class StoreDbContextInitializer(
         await storeDbContext.Set<ProductTag>().ExecuteDeleteAsync(cancellationToken);
         await storeDbContext.Set<MediaFile>().ExecuteDeleteAsync(cancellationToken);
     }
+}
+
+#region Catalog
+internal partial class StoreDbContextInitializer
+{
+    private static readonly (string Name, string ImageUrl, bool OnSale, decimal UnitPrice, decimal SalePrice)[] products = [
+        ("Blue Shoes", "", false, 36.50m, 0m),
+        ("Black Shoes", "", false, 40m, 0m),
+        ("White Shirt", "", true, 12.75m, 10.25m),
+        ("Blue Shirt", "", false, 10m, 0m),
+        ("Grey Joggers", "", true, 21.75m, 15.55m),
+        ("Baseball Cap", "", false, 15.90m, 0m)
+    ];
 
     private async Task SeedProduct(CancellationToken cancellationToken)
     {
-        if (!await storeDbContext.Set<Product>().AnyAsync(cancellationToken))
+        var productContext = storeDbContext.Set<Product>();
+        if (await productContext.AnyAsync(cancellationToken)) return;
+
+        var visibilities = Visibility.ListNames().Take(2).ToList();
+
+        // int i = 0;
+        foreach (var (name, imageUrl, onSale, unitPrice, salePrice) in products)
         {
-            await fileStorageManger.ClearAsync(cancellationToken);
+            var isUnlimited = _faker.Random.Bool();
+            var model = new ProductCreationModel(
+                Sku: $"SQ{_faker.Random.Int(1001111, 9999109)}",
+                Name: name,
+                Description: string.Join(Environment.NewLine, _faker.Lorem.Sentences(_faker.Random.Int(1, 5))),
+                OnSale: onSale,
+                UnitPrice: unitPrice,
+                SalePrice: salePrice,
+                StockQuantity: isUnlimited ? null : _faker.Random.Int(1, 25),
+                HasUnlimitedStock: isUnlimited,
+                IsFeatured: _faker.Random.Bool(),
+                EnableProductReviews: true,
+                EnableRelatedProducts: false,
+                UrlSlug: SeoHelper.GenerateUrlSlug(name),
+                MetaTitle: _faker.Lorem.Sentence(3),
+                MetaKeywords: null,
+                MetaDescription: null,
+                SocialImageUrl: null
+            );
 
-            var visibilities = Visibility.ListNames().Take(2);
+            var product = new Product(model);
+            product.SetVisibility(_faker.PickRandom(visibilities));
 
-            string[] names = [ 
-                "Kids Sports Sneakers", "Mwv Sneakers", "Fasion Running Sneakers", 
-                "Sport Running Sneakers", "YR7 SPY Sneakers", "Fasion Casual Sneakers", 
-                "Yeezy Foam Runner", "New Balance Clog"
-            ];
-
-            (bool, decimal, decimal)[] price = [
-                (false, 36.70m, 0m) ,
-                (true ,23m, 15.69m),
-                (false, 23m, 0m),
-                (false, 23.50m, 0m),
-                (true, 7.25m, 5m),
-                (false, 21m, 0m),
-                (false, 23m, 0m),
-                (true, 50m, 37.50m)
-            ];
-
-            string[] images = [
-                "https://www-konga-com-res.cloudinary.com/w_auto,f_auto,fl_lossy,dpr_auto,q_auto/media/catalog/product/I/I/68097_1668607420.jpg",
-                "https://www-konga-com-res.cloudinary.com/w_400,f_auto,fl_lossy,dpr_3.0,q_auto/media/catalog/product/Q/O/199326_1694448366.jpg",
-                "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/59/013819/2.jpg?5458",
-                "https://ng.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/63/142576/1.jpg?3347",
-                "https://www-konga-com-res.cloudinary.com/w_400,f_auto,fl_lossy,dpr_3.0,q_auto/media/catalog/product/O/W/154509_1623809419.jpg",
-                "https://ng.jumia.is/unsafe/fit-in/300x300/filters:fill(white)/product/67/4707162/1.jpg?5912",
-                "https://hips.hearstapps.com/hmg-prod/images/index-shoes-1661358805.jpg?crop=0.502xw:1.00xh;0.250xw,0&resize=640:*",
-                "https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1661357235-new-balance-clog-ivory-1661357229.jpg?crop=1xw:1xh;center,top&resize=980:*",
-            ];
-
-            for (int i = 0; i < names.Length; i++)
+            if (!string.IsNullOrWhiteSpace(imageUrl))
             {
-                var name = names[i];
-                var(sale, unitP, saleP) = price[i];
-                var isUnlimited = _faker.Random.Bool();
-                int? quantity = isUnlimited ? null : _faker.Random.Int(25);
-                var sku = $"SQ{_faker.Random.Int(1001111, 9919019)}";
-                var desc = string.Join(Environment.NewLine, _faker.Lorem.Sentences(_faker.Random.Int(1, 5)));
-                var model = new ProductCreationModel(
-                    sku, name, desc, // details
-                    sale, unitP, saleP, quantity, isUnlimited, // inventory
-                    _faker.Random.Bool(), true, false, SeoHelper.GenerateUrlSlug(name), _faker.Lorem.Sentence(2),
-                    null, null, null // seo
-                );
+                // var bytes = await LoadFileAsync(imageUrl, cancellationToken);
+                // if (bytes.Length != 0)
+                // {
+                //     using var stream = new MemoryStream(bytes);
+                //     var mediaFile = new MediaFile(FileType.Image(), $"IMG_{++i}", "image/jpg", stream.Length);
 
-                var product = new Product(model);
-                product.SetVisibility(visibilities.RandomChoice());
+                //     var response = await fileStorageManger.UploadAsync(mediaFile, stream, cancellationToken);
+                    
+                //     mediaFile.SetLocation(response.FileId);
+                //     product.AddImage(new(mediaFile.FileLocation, name, true, 0));
 
-                using var stream = new MemoryStream(await DownloadFromUrlAsync(images[i]));
-                if (stream.Length != 0)
-                {
-                    var file = new MediaFile(FileType.Image(), $"IMG_{i:D4}.jpg", "image/jpg", stream.Length);
-                    file.SetLocation(Path.Combine(file.FileType, $"{file.Id}"));
-                    await storeDbContext.AddAsync(file, cancellationToken);
-
-                    await fileStorageManger.UploadAsync(file, stream, cancellationToken);
-
-                    product.AddImage(new(file.FileLocation, null, true, 1));
-                }
-
-                await storeDbContext.Set<Product>().AddAsync(product, cancellationToken);
+                //     await storeDbContext.AddAsync(mediaFile, cancellationToken);
+                // }
             }
 
-            async Task<byte[]> DownloadFromUrlAsync(string url)
-            {
-                using var client = new HttpClient();
-                var uri = new Uri(url).GetLeftPart(UriPartial.Path);
-                return await client.GetByteArrayAsync(uri, cancellationToken);
-            }
+            await productContext.AddAsync(product, cancellationToken);
         }
     }
-}
 
+    private async Task<byte[]> LoadFileAsync(string path, CancellationToken cancellationToken)
+    {
+        byte[] content = [];
+
+        try
+        {
+            using var client = new HttpClient() { Timeout = TimeSpan.FromSeconds(15) };
+            content = path.StartsWith("http") switch
+            {
+                true => await client.GetByteArrayAsync(new Uri(path).GetLeftPart(UriPartial.Path), cancellationToken),
+                _ => await File.ReadAllBytesAsync(path, cancellationToken),
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex,  "Failed to load file path: {Path}", path);
+        }
+
+        return content;
+    }
+}
+#endregion
+
+# region Directory
 internal partial class StoreDbContextInitializer
 {
     private static readonly List<Currency> currencies = [
@@ -203,3 +213,4 @@ internal partial class StoreDbContextInitializer
         }
     }
 }
+#endregion
