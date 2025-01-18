@@ -3,6 +3,7 @@ using eCommerceWeb.Domain.Primitives.Storage;
 using eCommerceWeb.External.Storage.Azure;
 using eCommerceWeb.External.Storage.Local;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace eCommerceWeb.External.Storage;
 
@@ -16,7 +17,9 @@ public static class StorageExtensions
 
     internal static void AddLocalStorageManager(this IServiceCollection services, LocalOption option)
     {
-        services.AddSingleton<IFileStorageManger>(new LocalStorageManager(option));
+        services.AddSingleton<IFileStorageManger>(sp 
+            => new LocalStorageManager(option, sp.GetRequiredService<ILogger<LocalStorageManager>>())
+        );
     }
 
     public static IServiceCollection AddStorageManger(
