@@ -34,6 +34,6 @@ internal static class ComplexObjectConfiguration
         builder.Property(n => n.Fullname)
             .HasColumnName("fullname")
             .HasComputedColumnSql("firstname || ' ' || lastname", true);
-        builder.HasIndex(n => n.Fullname);
+        builder.HasIndex(n => n.Fullname).IncludeProperties(n => new { n.Firstname, n.Lastname });
     }
 }

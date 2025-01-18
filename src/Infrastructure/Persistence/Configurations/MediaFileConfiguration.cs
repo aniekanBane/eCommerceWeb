@@ -15,8 +15,7 @@ internal sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFil
         builder.Property(m => m.Description).HasMaxLength(DomainModelConstants.SEO_IMAGE_DESC_MAX_LENGTH);
 
         builder.Property(m => m.FileType)
-            .HasConversion(v => v.Value, v => new FileType(v))
-            .IsRequired();
+            .HasConversion(v => v.Value, v => new FileType(v));
 
         // ----- Table Configurations -----
 

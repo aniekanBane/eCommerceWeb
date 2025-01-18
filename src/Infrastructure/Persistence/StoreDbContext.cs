@@ -1,56 +1,75 @@
 ﻿using System.Data;
-using System.Linq.Expressions;
 using eCommerceWeb.Domain.Primitives.Entities;
 using eCommerceWeb.Domain.Primitives.Repositories;
 using eCommerceWeb.Domain.ValueObjects;
+using eCommerceWeb.Persistence.Configurations;
+using eCommerceWeb.Persistence.Conventions;
 using eCommerceWeb.Persistence.Converters;
-using Microsoft.EntityFrameworkCore.Query;
+using eCommerceWeb.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace eCommerceWeb.Persistence;
 
-public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options) : DbContext(options), IUnitOfWork
+public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options) 
+    : DbContext(options), IUnitOfWork
 {
-    private IDbContextTransaction? _dbContextTransaction;
-    public bool HasActiveTransaction => _dbContextTransaction is not null;
+    private IDbContextTransaction? _currentTransaction;
+    public bool HasActiveTransaction => _currentTransaction is not null;
 
     public async Task<IDisposable?> BeginTransactionAsync(
         IsolationLevel isolationLevel = IsolationLevel.ReadCommitted, 
         CancellationToken cancellationToken = default)
     {
-        if (HasActiveTransaction) return null;
+        if (_currentTransaction is not null)
+        {
+            return null;
+        }
 
-        _dbContextTransaction = await Database.BeginTransactionAsync(isolationLevel, cancellationToken);
-        return _dbContextTransaction;
+        _currentTransaction = await Database.BeginTransactionAsync(isolationLevel, cancellationToken);
+
+        return _currentTransaction;
     }
 
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (!HasActiveTransaction)
-            throw new DbUpdateException("Attemping to commit null transaction");
-
         try
         {
+            if (_currentTransaction is null)
+            {
+                throw new InvalidOperationException("No active transaction to commit");
+            }
+
             await SaveChangesAsync(cancellationToken);
-            await _dbContextTransaction!.CommitAsync(cancellationToken);
+            await _currentTransaction.CommitAsync(cancellationToken);
         }
-        catch (Exception)
+        catch
         {
-            RollBackTransaction();
+            RollbackTransaction();
             throw;
         }
         finally
         {
-            DisposeTransaction();
+            if (HasActiveTransaction)
+            {
+                _currentTransaction!.Dispose();
+                _currentTransaction = null;
+            }
         }
     }
 
-    public void RollBackTransaction()
+    public void RollbackTransaction()
     {
-        if (HasActiveTransaction)
+        try
         {
-            _dbContextTransaction?.Rollback();
-            DisposeTransaction();
+            _currentTransaction?.Rollback();
+        }
+        finally
+        {
+            if (HasActiveTransaction)
+            {
+                _currentTransaction?.Dispose();
+                _currentTransaction = null;
+            }
         }
     }
 
@@ -58,40 +77,63 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options) : D
     {
         base.ConfigureConventions(configurationBuilder);
 
-        configurationBuilder.Properties<EmailAddress>().HaveConversion<EmailAddressConverter>();
-        configurationBuilder.Properties<Money>().HaveConversion<MoneyConverter>();
-        configurationBuilder.Properties<Percent>().HaveConversion<PercentConverter>();
+        configurationBuilder.Conventions.Add(_ => new DirectoryConvention());
+
+        configurationBuilder.Properties<EmailAddress>()
+            .HaveConversion<EmailAddressConverter>();
+
+        configurationBuilder.Properties<PhoneNumber>()
+            .HaveConversion<PhoneNumberConverter>();
+
+        configurationBuilder.Properties<Percent>()
+            .HaveConversion<PercentConverter>();
+            
+        configurationBuilder.Properties<Money>()
+            .HaveConversion<MoneyConverter>();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(StoreDbContext).Assembly);
+        // Catalog
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        modelBuilder.ApplyConfiguration(new TagConfiguration());
+
+        // Customer
+        modelBuilder.ApplyConfiguration(new CustomerConfiguration());
+
+        // Subcriber
+        modelBuilder.ApplyConfiguration(new SubcriberConfiguration());
+
+        // Marketing
+        modelBuilder.ApplyConfiguration(new MailingListConfiguration());
+
+        // Misc
+        modelBuilder.ApplyConfiguration(new MediaFileConfiguration());
+
+        // Directory
+        modelBuilder.ApplyConfiguration(new CountryConfiguration());
+        modelBuilder.ApplyConfiguration(new CurrencyConfiguration());
+        
         modelBuilder.ApplyGlobalFilter<ISoftDeleteEntity>(e => !e.IsDeleted);
     }
 
-    private void DisposeTransaction()
+    public override void Dispose()
     {
-        _dbContextTransaction?.Dispose();
-        _dbContextTransaction = null;
+        _currentTransaction?.Dispose();
+        _currentTransaction = null;
+        base.Dispose();
     }
-}
 
-internal static class ModelBuilderExtensions
-{
-    public static void ApplyGlobalFilter<TType>(
-        this ModelBuilder modelBuilder, 
-        Expression<Func<TType, bool>> filter)
+    public override async ValueTask DisposeAsync()
     {
-        foreach (var entity in modelBuilder.Model.GetEntityTypes()
-            .Where(e => e.ClrType.IsAssignableTo(typeof(TType))))
+        if (_currentTransaction is not null)
         {
-            var param = Expression.Parameter(entity.ClrType);
-            var body = ReplacingExpressionVisitor.Replace(filter.Parameters.Single(), param, filter.Body);
-            var expression = Expression.Lambda(body, param);
-
-            entity.SetQueryFilter(expression);
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
         }
+        await base.DisposeAsync();
     }
 }

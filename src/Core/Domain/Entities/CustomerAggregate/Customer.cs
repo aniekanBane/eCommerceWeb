@@ -11,6 +11,8 @@ public sealed class Customer : AuditableEntity<Guid>, IAggregateRoot
         EmailAddress = EmailAddress.Of(creationModel.EmailAddress);
         PhoneNumber = PhoneNumber.Of(creationModel.PhoneNumber);
         AcceptsMarketing = creationModel.AcceptsMarketing;
+
+        Id = Guid.NewGuid();
     }
 
     #pragma warning disable CS8618

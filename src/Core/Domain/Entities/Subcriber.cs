@@ -1,5 +1,4 @@
-﻿using eCommerceWeb.Domain.Entities.MarketingAggregate;
-using eCommerceWeb.Domain.Events;
+﻿using eCommerceWeb.Domain.Events;
 using eCommerceWeb.Domain.Primitives.Entities;
 using eCommerceWeb.Domain.ValueObjects;
 
@@ -22,12 +21,9 @@ public sealed class Subcriber : AuditableEntityWithDomainEvent<int>, IAggregateR
     public EmailAddress EmailAddress { get; private set; }
     public bool AcceptsMarketing { get; private set; }
 
-    private readonly List<MailingListSubcriber> _mailingLists = [];
-    public IReadOnlyCollection<MailingListSubcriber> MailingLists => _mailingLists.AsReadOnly();
-
     public void Remove() => RaiseDomainEvent(new UnSubcribedEvent(this));
 
-    public Subcriber Update(SubcriberUpdateModel updateModel)
+    public Subcriber UpdateName(SubcriberUpdateModel updateModel)
     {
         Name = new(updateModel.Firstname, updateModel.Lastname);
         return this;

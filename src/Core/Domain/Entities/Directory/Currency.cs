@@ -15,6 +15,4 @@ public sealed class Currency : DirectoryBase
     public string Code { get; private set; }
 
     public string Symbol { get; private set; }
-
-    public bool HasUniqueSymbol { get; private set; }
 }

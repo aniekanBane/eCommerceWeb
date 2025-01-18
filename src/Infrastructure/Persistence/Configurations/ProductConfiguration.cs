@@ -26,7 +26,9 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsFixedLength();
 
         builder.Property(p => p.NormalizedSku).HasComputedColumnSql("UPPER(sku)", true);
-        builder.HasIndex(p => p.NormalizedSku).IsUnique();
+        builder.HasIndex(p => p.NormalizedSku)
+            .IsUnique()
+            .IncludeProperties(p => new { p.Sku });
 
         builder.Property(p => p.Description).HasMaxLength(DomainModelConstants.PRODUCT_DESC_MAX_LENGTH);
 
@@ -62,7 +64,7 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.ToTable(b =>
         {
             b.HasCheckConstraint("ck_visibility", $"visibility IN ('{string.Join("', '", Visibility.ListNames())}')");
-            b.HasCheckConstraint("ck_publish_on", $"visibility <> '{Visibility.Scheduled()}' OR publish_on IS NOT NULL");
+            b.HasCheckConstraint("ck_publish_on", $"visibility <> '{Visibility.Scheduled().Value}' OR publish_on IS NOT NULL");
             b.HasCheckConstraint("ck_unit_price", "unit_price >= 0");
             b.HasCheckConstraint(
                 "ck_stock_quantity", 

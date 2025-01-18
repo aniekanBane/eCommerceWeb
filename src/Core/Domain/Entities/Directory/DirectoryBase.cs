@@ -20,11 +20,4 @@ public abstract class DirectoryBase : Entity<int>
         get => Name.ToUpper(); 
         private set { }
     } 
-
-    public bool IsPublished { get; private set; }
-
-    public void TooglePublished(bool value)
-    {
-        IsPublished = value;
-    }
 }

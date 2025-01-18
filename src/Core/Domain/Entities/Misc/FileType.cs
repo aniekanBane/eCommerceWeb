@@ -54,7 +54,7 @@ public sealed record class FileType
 
         private sealed class ImageType() : FileTypeEnum("Image", 2)
         {
-            public override string AllowedExtensions => ".png .jpg .jpeg .png .svg .webp";
+            public override string AllowedExtensions => ".jpg .jpeg .png .svg .webp";
         }
 
         private sealed class VideoType() : FileTypeEnum("Video", 3)

@@ -1,25 +1,29 @@
-﻿using System.Reflection;
-using eCommerceWeb.Application.Abstractions.Database;
+﻿using eCommerceWeb.Application.Abstractions.Database;
 using eCommerceWeb.Domain.Primitives.Repositories;
 using eCommerceWeb.Persistence.Interceptors;
 using eCommerceWeb.Persistence.Repositories;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace eCommerceWeb.Persistence;
 
 public static class DependencyInjection
 {
     private const string MIGRATION_ASSEMBLY = "Migrator";
-    public static readonly Assembly AssemblyReference = typeof(DependencyInjection).Assembly;
 
-    public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPersistence(this IServiceCollection services)
     {
         services.AddSingleton<AuditableEntitySaveInterceptor>();
 
+        services.AddOptions<DatabaseSettings>(DatabaseSettings.StoreDb)
+            .BindConfiguration($"{DatabaseSettings.CONFIG_SECTION}:{DatabaseSettings.StoreDb}")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddDbContext<StoreDbContext>((sp, opts) => 
         {
-            var connection = configuration.GetConnectionString("StoreDbConnection");
+            var connection = sp.GetRequiredService<IOptionsSnapshot<DatabaseSettings>>()
+                .Get(DatabaseSettings.StoreDb).ConnectionString;
             opts.UseNpgsql(connection, npgopts =>
             {
                 npgopts.MigrationsAssembly(MIGRATION_ASSEMBLY);

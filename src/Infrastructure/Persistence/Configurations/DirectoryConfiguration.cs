@@ -14,9 +14,6 @@ internal sealed class CurrencyConfiguration : IEntityTypeConfiguration<Currency>
             .IncludeProperties(c => new { c.Name });
 
         builder.HasIndex(c => c.Code).IsUnique();
-
-        builder.Property(c => c.HasUniqueSymbol)
-            .ValueGeneratedOnAddOrUpdate();
     }
 }
 
@@ -32,7 +29,6 @@ internal sealed class CountryConfiguration : IEntityTypeConfiguration<Country>
 
         builder.HasIndex(c => c.Cca2).IsUnique();
         builder.HasIndex(c => c.Cca3).IsUnique();
-        builder.HasIndex(c => c.Ccn3).IsUnique();
 
         /***** Relationships *****/
 

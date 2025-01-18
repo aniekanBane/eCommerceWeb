@@ -13,7 +13,7 @@ if (builder.Environment.IsDocker())
 }
 
 builder.Services
-    .AddPersistence(builder.Configuration)
+    .AddPersistence()
     .AddExternalServices();
 
 // Add services to the container.

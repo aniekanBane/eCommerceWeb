@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using eCommerceWeb.Persistence;
@@ -12,9 +13,11 @@ using eCommerceWeb.Persistence;
 namespace eCommerceWeb.Migrator.StoreMigrations
 {
     [DbContext(typeof(StoreDbContext))]
-    partial class StoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250118003751_SubcriberInit")]
+    partial class SubcriberInit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -569,89 +572,6 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                     b.ToTable("state_province", (string)null);
                 });
 
-            modelBuilder.Entity("eCommerceWeb.Domain.Entities.MarketingAggregate.MailingList", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id")
-                        .HasColumnOrder(0);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on_utc");
-
-                    b.Property<string>("LastModifiedBy")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("last_modified_by");
-
-                    b.Property<DateTime>("LastModifiedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_modified_on_utc");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("normalized_name");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id")
-                        .HasName("pk_mailing_list");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("ix_mailing_list_normalized_name");
-
-                    NpgsqlIndexBuilderExtensions.IncludeProperties(b.HasIndex("NormalizedName"), new[] { "Name" });
-
-                    b.ToTable("mailing_list", (string)null);
-                });
-
-            modelBuilder.Entity("eCommerceWeb.Domain.Entities.MarketingAggregate.MailingListSubcriber", b =>
-                {
-                    b.Property<int>("MailingListId")
-                        .HasColumnType("integer")
-                        .HasColumnName("mailing_list_id");
-
-                    b.Property<int>("SubcriberId")
-                        .HasColumnType("integer")
-                        .HasColumnName("subcriber_id");
-
-                    b.Property<DateTime>("SubcribedOnUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("subcribed_on_utc")
-                        .HasDefaultValueSql("now()");
-
-                    b.HasKey("MailingListId", "SubcriberId")
-                        .HasName("pk_mailing_list_subcriber");
-
-                    b.HasIndex("SubcriberId")
-                        .HasDatabaseName("ix_mailing_list_subcriber_subcriber_id");
-
-                    b.ToTable("mailing_list_subcriber", (string)null);
-                });
-
             modelBuilder.Entity("eCommerceWeb.Domain.Entities.Misc.MediaFile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1011,23 +931,6 @@ namespace eCommerceWeb.Migrator.StoreMigrations
                         .HasConstraintName("fk_state_province_country_country_id");
                 });
 
-            modelBuilder.Entity("eCommerceWeb.Domain.Entities.MarketingAggregate.MailingListSubcriber", b =>
-                {
-                    b.HasOne("eCommerceWeb.Domain.Entities.MarketingAggregate.MailingList", null)
-                        .WithMany("Subcribers")
-                        .HasForeignKey("MailingListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_mailing_list_subcriber_mailing_list_mailing_list_id");
-
-                    b.HasOne("eCommerceWeb.Domain.Entities.Subcriber", null)
-                        .WithMany()
-                        .HasForeignKey("SubcriberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_mailing_list_subcriber_subcriber_subcriber_id");
-                });
-
             modelBuilder.Entity("eCommerceWeb.Domain.Entities.Subcriber", b =>
                 {
                     b.OwnsOne("eCommerceWeb.Domain.ValueObjects.Name", "Name", b1 =>
@@ -1094,11 +997,6 @@ namespace eCommerceWeb.Migrator.StoreMigrations
             modelBuilder.Entity("eCommerceWeb.Domain.Entities.Directory.Country", b =>
                 {
                     b.Navigation("StateProvinces");
-                });
-
-            modelBuilder.Entity("eCommerceWeb.Domain.Entities.MarketingAggregate.MailingList", b =>
-                {
-                    b.Navigation("Subcribers");
                 });
 #pragma warning restore 612, 618
         }

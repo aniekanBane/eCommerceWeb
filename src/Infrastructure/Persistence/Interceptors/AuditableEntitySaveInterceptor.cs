@@ -1,5 +1,6 @@
 ﻿using eCommerceWeb.Domain.Primitives.Entities;
 using eCommerceWeb.Domain.Primitives.SysTime;
+using eCommerceWeb.Persistence.Extensions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -66,16 +67,5 @@ internal sealed class AuditableEntitySaveInterceptor(IDateTimeProvider dateTimeP
             entityEntry.Property(e => e.LastModifiedBy).CurrentValue = username;
             entityEntry.Property(e => e.LastModifiedOnUtc).CurrentValue = dateTime;
         }
-    }
-}
-
-internal static class AuditEntityEntryExtensions
-{
-    public static bool HasChangedOwnedEntities(this EntityEntry entry)
-    {
-        return entry.References.Any(r 
-            => r.TargetEntry is not null 
-            && r.TargetEntry.Metadata.IsOwned() 
-            && r.TargetEntry.State is EntityState.Added or EntityState.Modified);
     }
 }

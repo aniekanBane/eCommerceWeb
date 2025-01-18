@@ -12,7 +12,7 @@ public sealed class MailingListSubcriber : IEntity
     
     private MailingListSubcriber() { } // EF Core
 
-    public int SubcriberId { get; private set; }
     public int MailingListId { get; private set; }
+    public int SubcriberId { get; private set; }
     public DateTime SubcribedOnUtc { get; private set; }
 }
