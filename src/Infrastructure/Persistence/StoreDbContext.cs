@@ -104,6 +104,9 @@ public sealed class StoreDbContext(DbContextOptions<StoreDbContext> options)
         // Customer
         modelBuilder.ApplyConfiguration(new CustomerConfiguration());
 
+        // Subcriber
+        modelBuilder.ApplyConfiguration(new SubcriberConfiguration());
+
         // Misc
         modelBuilder.ApplyConfiguration(new MediaFileConfiguration());
 
