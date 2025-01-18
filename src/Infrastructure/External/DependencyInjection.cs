@@ -2,7 +2,7 @@
 using eCommerceWeb.Domain.Primitives.Logging;
 using eCommerceWeb.Domain.Primitives.SysTime;
 using eCommerceWeb.External.Logging;
-using eCommerceWeb.External.SysTimeProvider;
+using eCommerceWeb.External.SysDateTime;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace eCommerceWeb.External;
