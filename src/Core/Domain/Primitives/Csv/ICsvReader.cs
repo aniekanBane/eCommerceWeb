@@ -1,6 +1,6 @@
 ﻿namespace eCommerceWeb.Domain.Primitives.Csv;
 
-public interface ICsvReader<T>
+public interface ICsvReader
 {
-    IEnumerable<T> Read(Stream stream);
+    Task<IEnumerable<T>> ReadAsync<T>(Stream stream);
 }
