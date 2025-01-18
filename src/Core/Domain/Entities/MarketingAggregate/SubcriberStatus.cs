@@ -5,18 +5,22 @@ namespace eCommerceWeb.Domain.Entities.MarketingAggregate;
 public sealed record SubcriberStatus
 {
     private SubcriberStatusEnum _status = null!;
+
+    public SubcriberStatus(string status) => Guard.Against.NullOrWhiteSpace(status, nameof(status));
+    private SubcriberStatus() { } // EF Core
+
     public string Value
     {
         get => _status.Name;
-        private init { _status = Parse(value); }
+        private init 
+        { 
+            Guard.Against.InvalidInput(
+                value, nameof(value), 
+                x => SubcriberStatusEnum.TryFromName(x, true, out _status), 
+                ErrorMessages.MailingList.InvalidSubcribtionType
+            );
+        }
     }
-
-    public SubcriberStatus(string status)
-    {
-        Value = status;
-    }
-
-    private SubcriberStatus() { } // EF Core
 
     public static implicit operator string(SubcriberStatus status) => status.Value;
 
@@ -26,14 +30,6 @@ public sealed record SubcriberStatus
     public static SubcriberStatus Cleaned() => new(SubcriberStatusEnum.Cleaned.Name);
     public static SubcriberStatus Subcribed() => new(SubcriberStatusEnum.Subcribed.Name);
     public static SubcriberStatus UnSubcribed() => new(SubcriberStatusEnum.UnSubcribed.Name);
-
-    private static SubcriberStatusEnum Parse(string value)
-    {
-        Guard.Against.NullOrWhiteSpace(value, nameof(value));
-        var success = SubcriberStatusEnum.TryFromName(value, true, out var result);
-        Guard.Against.Expression(x => !x, success, ErrorMessages.MailingList.InvalidSubcribtionType);
-        return result;
-    }
 
     private abstract class SubcriberStatusEnum(string name, ushort value) 
         : SmartEnum<SubcriberStatusEnum, ushort>(name, value)
