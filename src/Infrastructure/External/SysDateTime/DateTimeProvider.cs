@@ -1,6 +1,6 @@
 ﻿using eCommerceWeb.Domain.Primitives.SysTime;
 
-namespace eCommerceWeb.External.SysTimeProvider;
+namespace eCommerceWeb.External.SysDateTime;
 
 internal sealed class DateTimeProvider : IDateTimeProvider
 {

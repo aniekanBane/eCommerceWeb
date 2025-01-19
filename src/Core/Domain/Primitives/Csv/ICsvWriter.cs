@@ -1,6 +1,6 @@
 ﻿namespace eCommerceWeb.Domain.Primitives.Csv;
 
-public interface ICsvWriter<T>
+public interface ICsvWriter
 {
-    void Write(IEnumerable<T> collection, Stream stream);
+    Task WriteAsync<T>(IEnumerable<T> collection, Stream stream);
 }

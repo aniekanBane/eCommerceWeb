@@ -1,6 +1,5 @@
 using eCommerceWeb.Application;
 using eCommerceWeb.External;
-using eCommerceWeb.External.Storage;
 using eCommerceWeb.Persistence;
 using eCommerceweb.PublicApi.Extensions;
 using Carter;
@@ -18,14 +17,11 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddApplication();
-builder.Services.AddPersistence();
-builder.Services.AddExternalServices();
-
-var configSection = builder.Configuration.GetRequiredSection(StorageOptions.CONFIG_SECTION);
-builder.Services.Configure<StorageOptions>(configSection);
-var storageOptions = configSection.Get<StorageOptions>();
-builder.Services.AddStorageManger(storageOptions!);
+builder.Services
+    .AddApplication()
+    .AddPersistence()
+    .AddExternalServices()
+    .AddStorageManger(builder.Configuration);
 
 builder.Services.AddCarter();
 
