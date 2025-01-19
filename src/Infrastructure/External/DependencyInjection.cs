@@ -1,20 +1,49 @@
-﻿using System.Reflection;
+﻿using eCommerceWeb.Domain.Primitives.Csv;
+using eCommerceWeb.Domain.Primitives.Excel;
 using eCommerceWeb.Domain.Primitives.Logging;
-using eCommerceWeb.Domain.Primitives.SysTime;
+using eCommerceWeb.External.Csv;
+using eCommerceWeb.External.Excel;
 using eCommerceWeb.External.Logging;
+using eCommerceWeb.External.Storage;
 using eCommerceWeb.External.SysDateTime;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace eCommerceWeb.External;
 
 public static class DependencyInjection
-{
-    public static readonly Assembly AssemblyReference = typeof(DependencyInjection).Assembly;
-    
+{   
     public static IServiceCollection AddExternalServices(this IServiceCollection services)
     {
         services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
-        services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+        services.AddDateTimeProvider();
+        return services;
+    }
+
+    public static IServiceCollection AddImportExportServices(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<ICsvReader, CsvService>()
+            .AddScoped<ICsvWriter, CsvService>()
+            .AddScoped<IExcelReader, ClosedXMLService>()
+            .AddScoped<IExcelWriter, ClosedXMLService>();
+    }
+
+    public static IServiceCollection AddStorageManger(this IServiceCollection services, IConfiguration configuration)
+    {
+        StorageOptions? storageOptions = null;
+        configuration.Bind(StorageOptions.CONFIG_SECTION, storageOptions);
+
+        if (storageOptions is null) throw new InvalidOperationException();
+        if (storageOptions.IsAzure)
+        {
+            services.AddAzureBlobStorageManager(storageOptions.Azure!);
+        }
+        else if (storageOptions.IsLocal)
+        {
+            services.AddLocalStorageManager(storageOptions.Local!);
+        }
+
         return services;
     }
 }

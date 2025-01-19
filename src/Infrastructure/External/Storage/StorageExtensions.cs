@@ -21,20 +21,4 @@ public static class StorageExtensions
             => new LocalStorageManager(option, sp.GetRequiredService<ILogger<LocalStorageManager>>())
         );
     }
-
-    public static IServiceCollection AddStorageManger(
-        this IServiceCollection services, 
-        StorageOptions storageOptions)
-    {
-        if (storageOptions.IsLocal)
-        {
-            services.AddLocalStorageManager(storageOptions.Local!);
-        }
-        else if (storageOptions.IsAzure)
-        {
-            services.AddAzureBlobStorageManager(storageOptions.Azure!);
-        }
-
-        return services;
-    }
 }
