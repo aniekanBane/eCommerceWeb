@@ -1,0 +1,51 @@
+services:
+  ecommerceweb-webapp:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    ports:
+      - 5018:8080
+    volumes:
+      - ~/aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+  
+  ecommerceweb-public-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    ports:
+      - 5019:8080
+    volumes:
+      - ~/aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+
+  ecommerceweb-db:
+    environment:
+      - POSTGRES_DB=ecommerceweb_db
+      - POSTGRES_PASSWORD=secure123!
+    ports:
+      - 5432
+    volumes:
+      - ecommerceweb-db-data:/var/lib/postgresql/data
+
+  ecommerceweb-cache:
+    environment:
+      - REDIS_ARGS=--save 60 100 --appendonly yes
+    ports:
+      - 6379
+      - 8001
+    volumes:
+      - ecommerceweb-cache-data:/data
+
+  ecommerceweb-storage:
+    volumes:
+      - ecommerceweb-storage-data:/data
+    ports:
+      - 10000
+    command: ["azurite-blob", "--blobHost", "0.0.0.0", "-l", "/data"]
+
+volumes:
+  ecommerceweb-db-data:
+    name: ecommerceweb-db-data
+  ecommerceweb-cache-data:
+    name: ecommerceweb-cache-data
+  ecommerceweb-storage-data:
+    name: ecommerceweb-storage-data

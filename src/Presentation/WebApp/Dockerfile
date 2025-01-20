@@ -1,13 +1,36 @@
+# Syntax version
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
 WORKDIR /app
+# Add non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
-ARG configuration=Release
-COPY . /source
-WORKDIR "/source/src/Presentation/WebApp"
-RUN dotnet restore
-RUN dotnet build -c $configuration -o /app/build --no-restore
+# Package Restore stage
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS restore
+WORKDIR /tmp/build
+# Copy only project files first
+COPY ["src/Presentation/WebApp/WebApp.csproj", "src/Presentation/WebApp/"]
+COPY ["src/Presentation/AdminPanel/AdminPanel.csproj", "src/Presentation/AdminPanel/"]
+COPY ["src/Infrastructure/External/External.csproj", "src/Infrastructure/External/"]
+COPY ["src/Infrastructure/Migrator/Migrator.csproj", "src/Infrastructure/Migrator/"]
+COPY ["src/Infrastructure/Persistence/Persistence.csproj", "src/Infrastructure/Persistence/"]
+COPY ["src/Core/Application/Application.csproj", "src/Core/Application/"]
+COPY ["src/Core/Domain/Domain.csproj", "src/Core/Domain/"]
+COPY ["src/SharedKernel/SharedKernel.csproj", "src/SharedKernel/"]
+# Restore packages
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet restore "src/Presentation/AdminPanel"
 
+# Publish stage
+FROM restore AS publish
+ARG BUILD_CONFIGURATION=Release
+COPY . .
+WORKDIR "/tmp/build/src/Presentation/WebApp"
+# Publish project with cache packages
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet publish -c ${BUILD_CONFIGURATION} -o /publish /p:UseAppHost=false
+
+# Development stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS dev
 RUN apk update; apk add openssl
 RUN mkdir -p /data-protection && openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes \
@@ -15,22 +38,13 @@ RUN mkdir -p /data-protection && openssl req -x509 -newkey rsa:4096 -sha256 -day
     -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
 COPY . /source
 WORKDIR "/source/src/Presentation/WebApp"
-CMD dotnet run --no-launch-profile
+ENV ASPNETCORE_DATAPROTECTION_CERTIFICATE=/data-protection/cert.pem
+CMD ["dotnet", "run", "--no-launch-profile"]
 
-FROM build AS publish
-ARG configuration=Release
-RUN dotnet publish -c $configuration -o /app/publish /p:UseAppHost=false
-
+# Final stage
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-
-ARG UID=56783
-RUN adduser \
-    --uid $UID \
-    --disabled-password \
-    --gecos "" \
-    appuser && chown -R appuser /app
-USER appuser
-
+# Copy published files
+COPY --from=publish --chown=appuser:appgroup /publish .
+# Set entry point
 ENTRYPOINT ["dotnet", "WebApp.dll"]
