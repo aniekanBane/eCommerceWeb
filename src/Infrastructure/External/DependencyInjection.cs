@@ -31,10 +31,9 @@ public static class DependencyInjection
 
     public static IServiceCollection AddStorageManger(this IServiceCollection services, IConfiguration configuration)
     {
-        StorageOptions? storageOptions = null;
-        configuration.Bind(StorageOptions.CONFIG_SECTION, storageOptions);
-
-        if (storageOptions is null) throw new InvalidOperationException();
+        StorageOptions? storageOptions = configuration.GetRequiredSection(StorageOptions.CONFIG_SECTION)
+            .Get<StorageOptions>() ?? throw new InvalidOperationException();
+            
         if (storageOptions.IsAzure)
         {
             services.AddAzureBlobStorageManager(storageOptions.Azure!);
