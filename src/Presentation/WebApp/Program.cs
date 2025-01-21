@@ -1,9 +1,13 @@
 using eCommerceWeb.External;
+using eCommerceWeb.External.Logging;
 using eCommerceWeb.Persistence;
 using Microsoft.AspNetCore.DataProtection;
+using Serilog;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseAppLogger();
 
 if (builder.Environment.IsDocker())
 {
@@ -22,7 +26,7 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment() || app.Environment.IsDocker())
+if (!app.Environment.IsDevelopment() || !app.Environment.IsDocker())
 {
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -35,6 +39,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSerilogRequestLogging();
 
 app.MapControllerRoute(
     name: "default",

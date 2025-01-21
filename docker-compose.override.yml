@@ -41,6 +41,13 @@ services:
     ports:
       - 10000
     command: ["azurite-blob", "--blobHost", "0.0.0.0", "-l", "/data"]
+  
+  ecommerceweb-seq-log-server:
+    volumes:
+      - ecommerceweb-seq-log-server-data:/data
+    ports:
+      - 80
+      - 5341
 
 volumes:
   ecommerceweb-db-data:
@@ -49,3 +56,5 @@ volumes:
     name: ecommerceweb-cache-data
   ecommerceweb-storage-data:
     name: ecommerceweb-storage-data
+  ecommerceweb-seq-log-server-data:
+    name: ecommerceweb-seq-log-server-data
