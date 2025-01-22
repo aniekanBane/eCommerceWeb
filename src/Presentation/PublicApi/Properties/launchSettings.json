@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "https": {
+    "Project": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
