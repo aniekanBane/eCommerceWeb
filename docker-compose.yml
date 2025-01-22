@@ -12,6 +12,7 @@ services:
       - ecommerceweb-db
       - ecommerceweb-cache
       - ecommerceweb-storage
+      - ecommerceweb-seq-log-server
     
   ecommerceweb-public-api:
     image: ${DOCKER_REGISTRY-}ecommerceweb-public-api:latest
@@ -23,6 +24,7 @@ services:
     depends_on:
       - ecommerceweb-db
       - ecommerceweb-storage
+      - ecommerceweb-seq-log-server
   
   ecommerceweb-db:
     container_name: ecommerceweb-db
@@ -35,6 +37,12 @@ services:
   ecommerceweb-storage:
     container_name: ecommerceweb-storage
     image: mcr.microsoft.com/azure-storage/azurite:latest
+  
+  ecommerceweb-seq-log-server:
+    container_name: seq-log-server
+    image: datalust/seq:latest
+    environment:
+      - ACCEPT_EULA=Y
 
 networks:
   default:

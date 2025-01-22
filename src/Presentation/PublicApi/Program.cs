@@ -1,5 +1,6 @@
 using eCommerceWeb.Application;
 using eCommerceWeb.External;
+using eCommerceWeb.External.Logging;
 using eCommerceWeb.Persistence;
 using eCommerceweb.PublicApi.Extensions;
 using Carter;
@@ -7,11 +8,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration)
-    .Enrich.WithProperty("ApplicationName", builder.Environment.ApplicationName)
-    .Enrich.WithProperty("Environment", builder.Environment.EnvironmentName)
-);
+builder.Host.UseAppLogger();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
