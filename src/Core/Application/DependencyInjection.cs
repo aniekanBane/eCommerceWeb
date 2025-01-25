@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using eCommerceWeb.Application.Pipeline.Behaviors;
 using eCommerceWeb.Application.Pipeline.PreProcessors;
 using FluentValidation;
 using Mapster;
@@ -26,6 +27,7 @@ public static class DependencyInjection
         {
             cfg.RegisterServicesFromAssembly(AssemblyReference);
             cfg.AddRequestPreProcessor(typeof(IRequestPreProcessor<>), typeof(ValidationPreProcessor<>));
+            cfg.AddOpenBehavior(typeof(PerformanceBehavior<,>));
             cfg.AddOpenBehavior(typeof(RequestExceptionProcessorBehavior<,>));
         });
         
