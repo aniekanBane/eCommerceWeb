@@ -1,11 +1,13 @@
-﻿using FluentValidation;
+﻿using eCommerceWeb.Domain.Primitives.Logging;
+using FluentValidation;
 using MediatR.Pipeline;
 
 namespace eCommerceWeb.Application.Pipeline.PreProcessors;
 
 internal class ValidationPreProcessor<TRequest>(
-    IEnumerable<IValidator<TRequest>> validators
-) : IRequestPreProcessor<TRequest>
+    IEnumerable<IValidator<TRequest>> validators,
+    IAppLogger<ValidationPreProcessor<TRequest>> logger) 
+    : IRequestPreProcessor<TRequest>
     where TRequest : notnull
 {
     public async Task Process(TRequest request, CancellationToken cancellationToken)
@@ -21,6 +23,13 @@ internal class ValidationPreProcessor<TRequest>(
             .Where(f => f is not null)
             .ToList();
 
-        if (falures.Count != 0) throw new ValidationException(falures);
+        if (falures.Count != 0) 
+        {
+            logger.LogWarning(
+                "Validation errors - {RequestType} - Request: {@Request} - Errors: {@ValidationErrors}",
+                typeof(TRequest).Name, request, falures
+            );
+            throw new ValidationException(falures);
+        }
     }
 }
